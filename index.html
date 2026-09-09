@@ -129,7 +129,7 @@
   .hero-text{opacity:0;transform:translateY(14px);animation:rise .8s ease forwards .15s}
   .hero-name{font-size:clamp(36px,5vw,58px);line-height:1.03;color:var(--ice-100);margin-bottom:18px;letter-spacing:-0.02em}
   .hero-name .accent{color:var(--mint-400)}
-  .hero-desc{color:var(--ice-500);font-size:16px;max-width:460px;margin-bottom:30px}
+  .hero-desc{color:var(--ice-500);font-size:16px;max-width:460px;margin-bottom:30px;text-align:justify}
   .hero-desc strong{color:var(--ice-300);font-weight:500}
 
   .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:38px}
@@ -157,24 +157,53 @@
   .domain-chip .ic{width:16px;height:16px;color:var(--mint-400);flex-shrink:0}
   .domain-chip svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.6}
 
-  /* hero visual — device mock */
+  /* hero visual — portrait */
   .hero-visual{position:relative;opacity:0;animation:fadeIn 1s ease forwards .45s;perspective:1200px}
-  .device{
-    position:relative;width:100%;max-width:460px;margin-left:auto;
+  .photo-wrap{position:relative;width:100%;max-width:360px;margin-left:auto}
+  .photo-glow{
+    position:absolute;inset:-30px;z-index:0;
+    background:radial-gradient(circle at 50% 40%, rgba(63,214,148,0.20), transparent 65%);
+    filter:blur(6px);
+  }
+  .photo-frame{
+    position:relative;z-index:1;aspect-ratio:4/5;border-radius:26px;overflow:hidden;
+    border:1px solid var(--line-strong);
+    background:linear-gradient(160deg, var(--bg-800), var(--bg-900));
+    box-shadow:0 30px 60px rgba(0,0,0,0.55);
+    animation:floaty 7s ease-in-out infinite;
     transform-style:preserve-3d;transition:transform .25s ease-out;
-    animation:floaty 6s ease-in-out infinite;
   }
-  .device svg{width:100%;height:auto;display:block;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.55))}
-  .float-card{
-    position:absolute;left:-8%;bottom:6%;
-    background:rgba(10,19,16,0.82);border:1px solid var(--line-strong);
-    border-radius:var(--r-md);padding:14px 18px;backdrop-filter:blur(10px);
-    box-shadow:0 20px 40px rgba(0,0,0,0.4);
-    animation:fadeIn .8s ease forwards 1.4s;opacity:0;
+  .photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-frame::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(200deg, rgba(63,214,148,0.10), transparent 40%);
+    pointer-events:none;
   }
-  .float-card .num{font-family:var(--font-mono);font-size:22px;color:var(--mint-400);font-weight:500}
-  .float-card .lbl{font-size:11.5px;color:var(--ice-500);margin-top:2px}
-  @media (max-width:820px){ .float-card{left:4%;bottom:-6%} }
+  .scan-line{
+    position:absolute;left:0;right:0;height:2px;z-index:2;
+    background:linear-gradient(90deg, transparent, var(--mint-300), transparent);
+    box-shadow:0 0 12px 1px var(--mint-glow);
+    animation:scan 4s ease-in-out infinite;
+    opacity:.85;
+  }
+  @keyframes scan{
+    0%{top:6%; opacity:0}
+    10%{opacity:.85}
+    90%{opacity:.85}
+    100%{top:94%; opacity:0}
+  }
+  .corner{position:absolute;width:22px;height:22px;border-color:var(--mint-400);z-index:2;opacity:.9}
+  .corner.tl{top:-9px;left:-9px;border-top:2px solid;border-left:2px solid;border-radius:6px 0 0 0}
+  .corner.br{bottom:-9px;right:-9px;border-bottom:2px solid;border-right:2px solid;border-radius:0 0 6px 0}
+  .photo-stats{
+    position:relative;z-index:1;display:flex;margin-top:18px;
+    border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;
+    background:rgba(19,36,32,0.25);
+  }
+  .photo-stats > div{flex:1;padding:14px 16px}
+  .photo-stats > div:first-child{border-right:1px solid var(--line)}
+  .photo-stats .num{font-family:var(--font-mono);font-size:20px;color:var(--mint-400);font-weight:500}
+  .photo-stats .lbl{font-size:11.5px;color:var(--ice-500);margin-top:2px}
 
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{to{opacity:1}}
@@ -183,7 +212,7 @@
   .chart-line{stroke-dasharray:400;stroke-dashoffset:400;animation:drawline 1.6s cubic-bezier(.65,0,.35,1) forwards .8s}
 
   /* ---------- about ---------- */
-  .about-body{color:var(--ice-300);font-size:16px;max-width:680px;margin-bottom:30px}
+  .about-body{color:var(--ice-300);font-size:16px;max-width:680px;margin-bottom:30px;text-align:justify}
   .about-body strong{color:var(--ice-100);font-weight:600}
   .fact-strip{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px}
   .fact-strip span{font-size:13.5px;color:var(--ice-300);border:1px solid var(--line);border-radius:var(--r-pill);padding:7px 16px}
@@ -213,7 +242,7 @@
   .tl-meta{font-size:12.5px;color:var(--ice-600);white-space:nowrap}
   .tl-loc{font-size:13.5px;color:var(--ice-600);margin-bottom:10px}
   .tl-bullets{list-style:none;display:flex;flex-direction:column;gap:7px}
-  .tl-bullets li{position:relative;padding-left:16px;font-size:14.5px;color:var(--ice-300)}
+  .tl-bullets li{position:relative;padding-left:16px;font-size:14.5px;color:var(--ice-300);text-align:justify}
   .tl-bullets li::before{content:'';position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--ice-600)}
 
   .skill-table{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 40px}
@@ -236,7 +265,7 @@
   .project-labels .v{font-size:13px;color:var(--mint-300);font-family:var(--font-mono);margin-top:3px}
   .project-labels .right{text-align:right}
   .project h3{font-size:22px;color:var(--ice-100);margin-bottom:12px}
-  .project p{color:var(--ice-300);font-size:14.5px;margin-bottom:20px}
+  .project p{color:var(--ice-300);font-size:14.5px;margin-bottom:20px;text-align:justify}
   .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
   .tag-row span{font-size:12px;font-family:var(--font-mono);color:var(--ice-500);border:1px solid var(--line);border-radius:var(--r-pill);padding:5px 12px}
   .project-visual{
@@ -316,46 +345,24 @@
       </div>
     </div>
     <div class="hero-visual" id="heroVisual">
-      <div class="device" id="deviceTilt">
-        <svg viewBox="0 0 460 340" fill="none">
-          <rect x="1" y="1" width="458" height="338" rx="20" fill="#0a1310" stroke="rgba(230,245,238,0.14)"/>
-          <circle cx="24" cy="24" r="4" fill="#3fd694" opacity="0.7"/>
-          <circle cx="38" cy="24" r="4" fill="rgba(230,245,238,0.25)"/>
-          <circle cx="52" cy="24" r="4" fill="rgba(230,245,238,0.25)"/>
-          <rect x="180" y="16" width="180" height="16" rx="8" fill="rgba(230,245,238,0.06)"/>
-          <rect x="24" y="60" width="220" height="18" rx="4" fill="rgba(230,245,238,0.85)"/>
-          <rect x="24" y="86" width="150" height="10" rx="4" fill="rgba(230,245,238,0.28)"/>
-          <rect x="24" y="112" width="96" height="30" rx="15" fill="#3fd694"/>
-          <text x="72" y="132" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#05100a" font-weight="600">Contact</text>
-          <rect x="130" y="112" width="96" height="30" rx="15" fill="none" stroke="rgba(230,245,238,0.3)"/>
-          <g opacity="0.95">
-            <rect x="24" y="176" width="128" height="140" rx="14" fill="rgba(230,245,238,0.045)" stroke="rgba(230,245,238,0.1)"/>
-            <path class="chart-line" d="M36 280 C 55 280, 60 250, 75 245 S 100 210, 118 220 S 138 190, 146 186"
-              stroke="#3fd694" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <text x="36" y="200" font-family="JetBrains Mono, monospace" font-size="20" fill="#eef4f0">616</text>
-            <text x="36" y="216" font-family="Inter, sans-serif" font-size="9.5" fill="#7f9188">measures automated</text>
-          </g>
-          <g>
-            <rect x="164" y="176" width="272" height="66" rx="14" fill="rgba(230,245,238,0.045)" stroke="rgba(230,245,238,0.1)"/>
-            <rect x="180" y="196" width="70" height="8" rx="4" fill="rgba(230,245,238,0.25)"/>
-            <rect x="180" y="212" width="120" height="8" rx="4" fill="rgba(230,245,238,0.14)"/>
-            <rect x="380" y="192" width="40" height="26" rx="8" fill="#3fd694" opacity="0.18"/>
-            <text x="400" y="209" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#8ff0bf">A+</text>
-          </g>
-          <g>
-            <rect x="164" y="254" width="272" height="62" rx="14" fill="rgba(230,245,238,0.045)" stroke="rgba(230,245,238,0.1)"/>
-            <rect x="180" y="270" width="8" height="30" fill="#233b32"/>
-            <rect x="196" y="278" width="8" height="22" fill="#2bb87d"/>
-            <rect x="212" y="264" width="8" height="36" fill="#3fd694"/>
-            <rect x="228" y="272" width="8" height="28" fill="#2bb87d"/>
-            <rect x="244" y="258" width="8" height="42" fill="#3fd694"/>
-            <text x="330" y="288" font-family="Inter, sans-serif" font-size="9.5" fill="#7f9188">workflow automation</text>
-          </g>
-        </svg>
-      </div>
-      <div class="float-card">
-        <div class="num mono" id="counterNum">0</div>
-        <div class="lbl">lines of manual work automated</div>
+      <div class="photo-wrap">
+        <div class="photo-glow"></div>
+        <div class="photo-frame" id="photoFrame">
+          <div class="corner tl"></div>
+          <div class="corner br"></div>
+          <div class="scan-line"></div>
+          <img src="photo.jpg" alt="Alejandro Gomez Musson">
+        </div>
+        <div class="photo-stats">
+          <div>
+            <div class="num mono">616</div>
+            <div class="lbl">measures automated</div>
+          </div>
+          <div>
+            <div class="num mono" id="counterNum">0</div>
+            <div class="lbl">lines automated</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -600,18 +607,18 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // subtle cursor tilt on the hero device
+  // subtle cursor tilt on the portrait
   var visual = document.getElementById('heroVisual');
-  var device = document.getElementById('deviceTilt');
-  if (visual && device && window.matchMedia('(min-width: 821px)').matches) {
+  var photo = document.getElementById('photoFrame');
+  if (visual && photo && window.matchMedia('(min-width: 821px)').matches) {
     visual.addEventListener('mousemove', function(e){
       var r = visual.getBoundingClientRect();
       var x = (e.clientX - r.left) / r.width - 0.5;
       var y = (e.clientY - r.top) / r.height - 0.5;
-      device.style.transform = 'rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg)';
+      photo.style.transform = 'rotateY(' + (x * 6) + 'deg) rotateX(' + (-y * 6) + 'deg)';
     });
     visual.addEventListener('mouseleave', function(){
-      device.style.transform = 'rotateY(0deg) rotateX(0deg)';
+      photo.style.transform = 'rotateY(0deg) rotateX(0deg)';
     });
   }
 
