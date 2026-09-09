@@ -125,7 +125,7 @@
   .corner-label .v{font-size:13.5px;color:var(--ice-300);font-family:var(--font-mono)}
   @media (max-width:760px){ .corner-label{display:none} }
 
-  .hero .wrap{display:grid;grid-template-columns:1.05fr 0.95fr;gap:40px;align-items:center}
+  .hero .wrap{display:grid;grid-template-columns:1.35fr 0.65fr;gap:40px;align-items:center}
   .hero-text{opacity:0;transform:translateY(14px);animation:rise .8s ease forwards .15s}
   .hero-name{font-size:clamp(36px,5vw,58px);line-height:1.03;color:var(--ice-100);margin-bottom:18px;letter-spacing:-0.02em}
   .hero-name .accent{color:var(--mint-400)}
@@ -159,17 +159,17 @@
 
   /* hero visual — portrait */
   .hero-visual{position:relative;opacity:0;animation:fadeIn 1s ease forwards .45s;perspective:1200px}
-  .photo-wrap{position:relative;width:100%;max-width:360px;margin-left:auto}
+  .photo-wrap{position:relative;width:100%;max-width:280px;margin-left:auto}
   .photo-glow{
     position:absolute;inset:-30px;z-index:0;
     background:radial-gradient(circle at 50% 40%, rgba(63,214,148,0.20), transparent 65%);
     filter:blur(6px);
   }
   .photo-frame{
-    position:relative;z-index:1;aspect-ratio:4/5;border-radius:26px;overflow:hidden;
+    position:relative;z-index:1;aspect-ratio:4/5;border-radius:24px;overflow:hidden;
     border:1px solid var(--line-strong);
     background:linear-gradient(160deg, var(--bg-800), var(--bg-900));
-    box-shadow:0 30px 60px rgba(0,0,0,0.55);
+    box-shadow:0 24px 50px rgba(0,0,0,0.55);
     animation:floaty 7s ease-in-out infinite;
     transform-style:preserve-3d;transition:transform .25s ease-out;
   }
@@ -179,31 +179,37 @@
     background:linear-gradient(200deg, rgba(63,214,148,0.10), transparent 40%);
     pointer-events:none;
   }
-  .scan-line{
-    position:absolute;left:0;right:0;height:2px;z-index:2;
-    background:linear-gradient(90deg, transparent, var(--mint-300), transparent);
-    box-shadow:0 0 12px 1px var(--mint-glow);
-    animation:scan 4s ease-in-out infinite;
-    opacity:.85;
+  .corner{position:absolute;width:20px;height:20px;border-color:var(--mint-400);z-index:2;opacity:.9}
+  .corner.tl{top:-8px;left:-8px;border-top:2px solid;border-left:2px solid;border-radius:6px 0 0 0}
+  .corner.br{bottom:-8px;right:-8px;border-bottom:2px solid;border-right:2px solid;border-radius:0 0 6px 0}
+
+  /* mini animated chart badge — replaces the scan line */
+  .chart-badge{
+    position:absolute;left:-22px;bottom:-22px;z-index:3;
+    width:84px;height:84px;border-radius:18px;
+    background:rgba(10,19,16,0.88);border:1px solid var(--line-strong);
+    backdrop-filter:blur(10px);box-shadow:0 14px 30px rgba(0,0,0,0.45);
+    display:flex;align-items:flex-end;justify-content:center;gap:5px;padding:14px 12px 10px;
+    animation:fadeIn .8s ease forwards 1.2s;opacity:0;
   }
-  @keyframes scan{
-    0%{top:6%; opacity:0}
-    10%{opacity:.85}
-    90%{opacity:.85}
-    100%{top:94%; opacity:0}
-  }
-  .corner{position:absolute;width:22px;height:22px;border-color:var(--mint-400);z-index:2;opacity:.9}
-  .corner.tl{top:-9px;left:-9px;border-top:2px solid;border-left:2px solid;border-radius:6px 0 0 0}
-  .corner.br{bottom:-9px;right:-9px;border-bottom:2px solid;border-right:2px solid;border-radius:0 0 6px 0}
+  .chart-badge i{display:block;width:7px;border-radius:2px 2px 0 0;background:var(--mint-400);transform-origin:bottom;animation:barPulse 2.4s ease-in-out infinite}
+  .chart-badge i:nth-child(1){height:14px;animation-delay:.1s}
+  .chart-badge i:nth-child(2){height:26px;animation-delay:.4s}
+  .chart-badge i:nth-child(3){height:18px;animation-delay:.7s}
+  .chart-badge i:nth-child(4){height:32px;background:var(--mint-300);animation-delay:1s}
+  @keyframes barPulse{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.45)}}
+
   .photo-stats{
-    position:relative;z-index:1;display:flex;margin-top:18px;
-    border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;
-    background:rgba(19,36,32,0.25);
+    position:relative;z-index:1;display:flex;gap:10px;margin-top:34px;
   }
-  .photo-stats > div{flex:1;padding:14px 16px}
-  .photo-stats > div:first-child{border-right:1px solid var(--line)}
-  .photo-stats .num{font-family:var(--font-mono);font-size:20px;color:var(--mint-400);font-weight:500}
-  .photo-stats .lbl{font-size:11.5px;color:var(--ice-500);margin-top:2px}
+  .photo-stats > div{
+    flex:1;padding:16px 14px;border-radius:var(--r-md);
+    border:1px solid var(--line);background:rgba(19,36,32,0.28);
+    border-top:2px solid var(--mint-400);
+  }
+  .photo-stats .num{font-family:var(--font-mono);font-size:23px;color:var(--mint-300);font-weight:500;line-height:1}
+  .photo-stats .lbl{font-size:11px;color:var(--ice-500);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+
 
   @keyframes rise{to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{to{opacity:1}}
@@ -268,6 +274,20 @@
   .project p{color:var(--ice-300);font-size:14.5px;margin-bottom:20px;text-align:justify}
   .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
   .tag-row span{font-size:12px;font-family:var(--font-mono);color:var(--ice-500);border:1px solid var(--line);border-radius:var(--r-pill);padding:5px 12px}
+  .project-stats{display:flex;gap:10px;margin-bottom:24px}
+  .project-stats > div{
+    flex:1;padding:14px 16px;border-radius:var(--r-md);
+    border:1px solid var(--line);background:rgba(19,36,32,0.28);border-top:2px solid var(--mint-400);
+  }
+  .project-stats .num{font-family:var(--font-mono);font-size:22px;color:var(--mint-300);font-weight:500;line-height:1}
+  .project-stats .lbl{font-size:11px;color:var(--ice-500);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+  .project-visual img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;border-radius:var(--r-md)}
+  .doc-link{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mint-300);
+    border-bottom:1px solid var(--line-strong);margin-left:8px;transition:color .2s ease,border-color .2s ease;
+  }
+  .doc-link:hover{color:var(--mint-300);border-color:var(--mint-400)}
+  .doc-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
   .project-visual{
     aspect-ratio:4/3;border-radius:var(--r-md);
     background:linear-gradient(150deg, var(--bg-800), var(--bg-900));
@@ -321,10 +341,6 @@
     <span class="k">Focus</span>
     <span class="v">Data × Automation × AI</span>
   </div>
-  <div class="corner-label right">
-    <span class="k">Based in</span>
-    <span class="v">Miami, FL</span>
-  </div>
   <div class="wrap">
     <div class="hero-text">
       <h1 class="hero-name">Alejandro Gomez<br>Musson<span class="accent">.</span></h1>
@@ -350,8 +366,8 @@
         <div class="photo-frame" id="photoFrame">
           <div class="corner tl"></div>
           <div class="corner br"></div>
-          <div class="scan-line"></div>
           <img src="photo.jpg" alt="Alejandro Gomez Musson">
+          <div class="chart-badge" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="photo-stats">
           <div>
@@ -390,6 +406,7 @@
       <span class="mono">Class of 2027</span>
       <span class="mono">GPA 3.30</span>
       <span>Dean's List ×3</span>
+      <span>Based in Miami, FL</span>
     </div>
     <p class="interests">
       <strong>Outside of work:</strong> golf, running (3 half marathons — Cambridge, Miami &amp; Bogotá), hiking, traveling, aviation, the maritime industry, technology, the stock market, and cryptocurrency.
@@ -425,7 +442,10 @@
             <span class="tl-role">High School Diploma</span>
             <span class="tl-meta mono">Aug 2019 – June 2023</span>
           </div>
-          <div class="tl-loc"><a href="https://www.nogales.edu.co" target="_blank" rel="noopener">Colegio Los Nogales</a>, Bogotá, Colombia</div>
+          <div class="tl-loc">
+            <a href="https://www.nogales.edu.co" target="_blank" rel="noopener">Colegio Los Nogales</a>, Bogotá, Colombia
+            <a class="doc-link" href="diploma.jpg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg>View diploma</a>
+          </div>
           <ul class="tl-bullets">
             <li>GPA 3.75/4.00</li>
             <li>Varsity Soccer Team, Member · Marching Band, Member</li>
@@ -523,7 +543,7 @@
         <div class="skill-row"><dt>Data</dt><dd>Pandas, Excel, Tableau, Power BI, Forecasting, Regression</dd></div>
         <div class="skill-row"><dt>Tools</dt><dd>Git, Power Query, Microsoft Office, VS Code, Claude Code</dd></div>
         <div class="skill-row"><dt>Languages</dt><dd>Spanish (Native), English (Fluent), Portuguese (Intermediate)</dd></div>
-        <div class="skill-row"><dt>Certifications</dt><dd>CELPE-Brás · <a href="https://cs50.harvard.edu" target="_blank" rel="noopener">Harvard CS50</a></dd></div>
+        <div class="skill-row"><dt>Certifications</dt><dd>CELPE-Brás <a class="doc-link" href="celpe-bras.jpg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg>View</a> · <a href="https://cs50.harvard.edu" target="_blank" rel="noopener">Harvard CS50</a></dd></div>
       </dl>
     </div>
   </div>
@@ -558,9 +578,9 @@
           <span>Scoring Algorithm</span>
           <span>Supabase</span>
         </div>
-        <a class="btn btn-primary is-disabled" id="demoLink" href="#" target="_blank" rel="noopener" aria-disabled="true">View live demo</a>
+        <a class="btn btn-primary" id="demoLink" href="demo/ma-platform/" target="_blank" rel="noopener">View live demo</a>
       </div>
-      <div class="project-visual">
+      <div class="project-visual" id="maVisual">
         <svg viewBox="0 0 200 160" fill="none">
           <rect x="10" y="90" width="26" height="55" rx="4" fill="#233b32"/>
           <rect x="46" y="60" width="26" height="85" rx="4" fill="#2bb87d"/>
@@ -571,6 +591,45 @@
         </svg>
       </div>
     </article>
+
+    <article class="project" style="margin-top:28px">
+      <div class="project-info">
+        <div class="project-labels">
+          <div><div class="k">Project</div><div class="v">02</div></div>
+          <div class="right"><div class="k">Domain</div><div class="v">Process Automation</div></div>
+        </div>
+        <h3>Production Productivity Report</h3>
+        <p>
+          A VBA-driven reporting tool I built for Designers Choice to replace a manual, paper-based
+          production log. A UserForm walks supervisors through each order — line, client, product, task
+          and subtask fields cascade from dropdowns so only valid combinations can be entered, start and
+          end times are stamped with one click, and submitting instantly appends a clean, structured row
+          to the production database behind it. It runs three concurrent orders at once and flags bad
+          entries (like letters in a numeric field) before they ever reach the data.
+        </p>
+        <div class="project-stats">
+          <div>
+            <div class="num mono">95%</div>
+            <div class="lbl">fewer data-entry errors</div>
+          </div>
+          <div>
+            <div class="num mono">50%+</div>
+            <div class="lbl">faster report turnaround</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <span>VBA</span>
+          <span>Excel Automation</span>
+          <span>UserForm Design</span>
+          <span>Data Validation</span>
+        </div>
+        <a class="btn btn-ghost" href="production-report.png" target="_blank" rel="noopener">View form walkthrough</a>
+      </div>
+      <div class="project-visual">
+        <img src="production-report.png" alt="Production Productivity Report VBA form">
+      </div>
+    </article>
+
     <p class="projects-note">More projects coming soon — sent one at a time and added here.</p>
   </div>
 </section>
