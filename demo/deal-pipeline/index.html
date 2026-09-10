@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deal Pipeline Dashboard — Portfolio Replica (Power BI)</title>
+<style>
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#16213b;--brd:#334155;
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;
+  --accent:#3b82f6;--accent2:#60a5fa;
+  --v7:#10b981;--v2:rgba(16,185,129,.16);
+  --o7:#f59e0b;--o2:rgba(245,158,11,.16);
+  --r7:#ef4444;--r2:rgba(239,68,68,.16);
+  --purple:#8b5cf6;--cyan:#06b6d4;--orange:#f97316;--pink:#ec4899;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.25);--sh2:0 4px 14px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t1);font-size:14px}
+.nav{background:#0b1220;border-bottom:1px solid var(--brd);color:#fff;display:flex;align-items:center;padding:0 20px;height:52px;gap:4px;position:sticky;top:0;z-index:100;flex-wrap:nowrap;overflow-x:auto}
+.nav-logo{font-size:10px;font-weight:700;letter-spacing:2px;opacity:.55;margin-right:8px;white-space:nowrap;color:var(--t2)}
+.nav-title{font-size:13px;font-weight:600;margin-right:10px;white-space:nowrap;color:var(--t1)}
+.nav-btn{background:transparent;border:1px solid transparent;color:var(--t2);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:500;transition:.15s;white-space:nowrap}
+.nav-btn:hover{background:rgba(59,130,246,.10);color:var(--t1)}
+.nav-btn.active{background:rgba(59,130,246,.16);color:#fff;border-color:rgba(59,130,246,.4)}
+.view{display:none}
+.view.active{display:block}
+.disclaimer{background:#3f2d0a;border-bottom:1.5px solid #f59e0b;color:#fbbf24;font-size:11px;text-align:center;padding:6px 12px}
+.cover-wrap{background:radial-gradient(circle at 30% 20%,#16233d 0%,#0f172a 55%,#0b1220 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 84px);color:#fff;text-align:center;padding:40px}
+.cover-badge{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.35);color:var(--accent2);border-radius:20px;padding:5px 16px;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:20px}
+.cover-h{font-size:34px;font-weight:300;line-height:1.25;max-width:760px;margin-bottom:14px;color:#f8fafc}
+.cover-h strong{font-weight:700}
+.cover-sub{font-size:15px;color:var(--t2);max-width:600px;margin-bottom:28px;line-height:1.65}
+.cover-cta{background:var(--accent);color:#fff;border:none;padding:12px 30px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer}
+.cover-cta:hover{background:var(--accent2)}
+.cover-stats{display:flex;gap:32px;margin-top:36px;flex-wrap:wrap;justify-content:center;max-width:900px}
+.cover-stat .num{font-size:25px;font-weight:700;color:#f8fafc}
+.cover-stat .lbl{font-size:10px;color:var(--t3);margin-top:3px;max-width:130px}
+.page{padding:26px 34px;max-width:1360px;margin:0 auto}
+.page-hdr{margin-bottom:16px}
+.page-hdr h2{font-size:19px;font-weight:700;color:#f8fafc;letter-spacing:.3px}
+.page-hdr p{color:var(--t2);font-size:12.5px;margin-top:3px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.4px;color:var(--accent2);text-transform:uppercase;margin:22px 0 8px;padding-top:10px;border-top:1px solid var(--brd)}
+.section-label:first-child{margin-top:0;border-top:none;padding-top:0}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);padding:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media (max-width:1100px){.g4,.g5,.g6{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:1000px){.g2,.g3{grid-template-columns:1fr 1fr}}
+@media (max-width:700px){.g2,.g3,.g4,.g5,.g6{grid-template-columns:1fr 1fr}}
+.kpi{padding:14px 15px 13px;border-width:1px;border-left-width:3px}
+.kpi.green{border-color:var(--v7);background:linear-gradient(var(--v2),var(--v2)),var(--card)}
+.kpi.amber{border-color:var(--o7);background:linear-gradient(var(--o2),var(--o2)),var(--card)}
+.kpi.red{border-color:var(--r7);background:linear-gradient(var(--r2),var(--r2)),var(--card)}
+.kpi.blue{border-color:var(--accent);background:linear-gradient(rgba(59,130,246,.14),rgba(59,130,246,.14)),var(--card)}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.kpi-lbl{font-size:10.5px;color:var(--t2);font-weight:600;line-height:1.3;max-width:82%}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.dot.green{background:var(--v7)}.dot.amber{background:var(--o7)}.dot.red{background:var(--r7)}.dot.blue{background:var(--accent)}.dot.grey{background:var(--t3)}
+.kpi-val{font-size:23px;font-weight:700;color:#f8fafc}
+.kpi-sub{font-size:10px;color:var(--t3);margin-top:3px}
+.legend{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--t2)}
+.legend .dot{display:inline-block;margin-right:5px;vertical-align:middle;margin-top:0}
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);padding:6px 8px;border-bottom:1.5px solid var(--brd);white-space:nowrap}
+.tbl td{padding:6.5px 8px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--t1);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl-wrap{overflow-x:auto}
+.tbl.matrix th:first-child,.tbl.matrix td:first-child{position:sticky;left:0;background:var(--card);font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px}
+.badge.green{background:var(--v2);color:#34d399}
+.badge.amber{background:var(--o2);color:#fbbf24}
+.badge.red{background:var(--r2);color:#f87171}
+.badge.grey{background:rgba(255,255,255,.07);color:var(--t2)}
+.pill-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
+.pill{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:6px;padding:7px 11px;font-size:10.5px;color:var(--t2);display:flex;align-items:center;gap:7px}
+.pill b{color:var(--t1);font-size:12px}
+.tabs-sub{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs-sub button{background:var(--card);border:1px solid var(--brd);color:var(--t2);font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer}
+.tabs-sub button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.filters select{font-size:11.5px;padding:6px 10px;border:1px solid var(--brd);border-radius:6px;background:var(--card);color:var(--t1)}
+.period-slider{margin-bottom:16px}
+.period-slider .psl-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.period-slider .psl-current{font-size:11.5px;font-weight:700;color:var(--accent2);background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:6px;padding:3px 10px}
+.period-slider .psl-track{position:relative;height:30px;margin:4px 4px 2px}
+.period-slider .psl-rail{position:absolute;top:13px;left:0;right:0;height:4px;border-radius:2px;background:var(--brd)}
+.period-slider .psl-fill{position:absolute;top:13px;height:4px;border-radius:2px;background:var(--accent)}
+.period-slider input[type=range]{position:absolute;top:0;left:0;width:100%;margin:0;height:30px;background:transparent;-webkit-appearance:none;appearance:none;pointer-events:none}
+.period-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--accent2);border:2px solid #0b1220;cursor:pointer;margin-top:-6px}
+.period-slider input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--accent2);border:2px solid #0b1220;cursor:pointer}
+.period-slider input[type=range]::-webkit-slider-runnable-track{background:transparent}
+.period-slider .psl-ends{display:flex;justify-content:space-between;font-size:9.5px;color:var(--t3);margin-top:2px}
+.period-slider .psl-note{font-size:10px;color:var(--t3);margin-top:8px;display:flex;align-items:flex-start;gap:6px}
+.period-slider .psl-note .tag{flex-shrink:0;font-size:8.5px;font-weight:700;color:var(--t3);background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:1px 6px;text-transform:uppercase;letter-spacing:.4px}
+.foot-note{font-size:10px;color:var(--t3);margin-top:14px;border-top:1px solid var(--brd);padding-top:10px}
+h4.card-hdr{font-size:11.5px;font-weight:700;color:#f8fafc;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+h4.card-hdr .vtag{font-size:8.5px;font-weight:700;color:var(--t3);background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:4px;padding:1px 6px;text-transform:uppercase;letter-spacing:.4px}
+canvas{max-width:100%}
+.ring-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.ring-grid{grid-template-columns:1fr 1fr}}
+.ring-card{text-align:center}
+.ring-card .rv{font-size:11px;color:var(--t2);margin-top:6px}
+.ring-card .rv b{color:var(--t1)}
+.what-inside .card p{font-size:11.5px;color:var(--t2);margin-top:4px;line-height:1.5}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--brd);border-radius:20px;padding:5px 14px 5px 8px;margin-bottom:18px}
+.logo-badge .sq{width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
+.logo-badge span{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--t2)}
+.built-with{margin-top:30px;max-width:760px;background:rgba(255,255,255,.02);border:1px solid var(--brd);border-radius:10px;padding:16px 20px;text-align:left}
+.built-with h5{font-size:11px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.built-with p{font-size:11.5px;color:var(--t2);line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="disclaimer">Portfolio demo — all figures and person/client names shown are illustrative (placeholders). The structure, visual types, order, and design replicate the real dashboard built in Power BI.</div>
+
+<nav class="nav" id="mainNav">
+  <span class="nav-logo">PORTFOLIO</span>
+  <span class="nav-title">Deal Pipeline Dashboard</span>
+  <button class="nav-btn active" onclick="gv('vHome',this)">Home</button>
+  <button class="nav-btn" onclick="gv('vFin1',this)">Financial</button>
+  <button class="nav-btn" onclick="gv('vFin2',this)">Portfolio &amp; Billing</button>
+  <button class="nav-btn" onclick="gv('vHist',this)">Historical</button>
+  <button class="nav-btn" onclick="gv('vCFA',this)">Cash Flow — Local</button>
+  <button class="nav-btn" onclick="gv('vCFB',this)">Cash Flow — Int&#39;l US$</button>
+  <button class="nav-btn" onclick="gv('vCFC',this)">Cash Flow — Consolidated</button>
+  <button class="nav-btn" onclick="gv('vBiz',this)">Business</button>
+  <button class="nav-btn" onclick="gv('vHR',this)">Productivity (HR)</button>
+</nav>
+
+<!-- ============ HOME ============ -->
+<div id="vHome" class="view active">
+  <div class="cover-wrap">
+    <div class="logo-badge"><span class="sq">IL</span><span>INVERLINK</span></div>
+    <div class="cover-badge">DEAL PIPELINE DASHBOARD · PORTFOLIO DEMO</div>
+    <h1 class="cover-h">Deal Pipeline Dashboard<br><strong>Exact replica of a real Power BI build</strong></h1>
+    <p class="cover-sub">This HTML reproduces, visual by visual, an executive reporting system I designed and maintain in production: same chart types, same sections, same order, and the same color scheme as the original Power BI theme. Figures and names were swapped for illustrative placeholders for confidentiality — the structure is identical.</p>
+    <button class="cover-cta" onclick="gv('vFin1', document.querySelectorAll('.nav-btn')[1])">Explore the dashboard →</button>
+    <div class="cover-stats">
+      <div class="cover-stat"><div class="num">9</div><div class="lbl">Report pages</div></div>
+      <div class="cover-stat"><div class="num">500+</div><div class="lbl">Visuals (KPIs, charts, tables)</div></div>
+      <div class="cover-stat"><div class="num">616</div><div class="lbl">DAX measures</div></div>
+      <div class="cover-stat"><div class="num">44</div><div class="lbl">Data tables in the model</div></div>
+      <div class="cover-stat"><div class="num">22</div><div class="lbl">Dynamic traffic-light indicators</div></div>
+      <div class="cover-stat"><div class="num">1</div><div class="lbl">Master Excel file (SharePoint)</div></div>
+    </div>
+    <div class="built-with">
+      <h5>How the original was built</h5>
+      <p>Built 100% in <b>Power BI Desktop</b> from scratch, connected live to a single master Excel file hosted on SharePoint via <b>Power Query (M code)</b>, replacing a manually-consolidated Excel file. It's now used weekly by senior leadership and the board. All metrics are calculated with <b>616 DAX measures</b> across <b>44 tables</b> — reusing base measures with <code>DIVIDE</code>/<code>CALCULATE</code> instead of duplicating logic — and the output formatting ($, %, "m"/"mm", decimals) is built directly into each measure with <code>FORMAT()</code> for cards, while measures feeding charts stay purely numeric. The system has <b>9 report pages</b>, <b>500+ visuals</b>, and <b>22 dynamic traffic-light indicators</b>, and is split across two files: <b>Financial Dashboard</b> (income/liquidity/expenses, portfolio & billing, multi-year historical, and 3 cash-flow pages) and <b>Business & Productivity Dashboard</b> (sales pipeline and productivity/HR).</p>
+    </div>
+    <p style="margin-top:22px;font-size:10px;opacity:.4">Portfolio demo · Illustrative data only · Does not represent real figures from any client</p>
+  </div>
+  <div class="page what-inside" style="max-width:1140px">
+    <div class="section-label" style="margin-top:8px">What's inside</div>
+    <div class="g3">
+      <div class="card"><h4 class="card-hdr">Financial — Income, Liquidity &amp; Expenses</h4><p>Monthly commercial KPIs, liquidity by currency, credit line, and expense execution, each with its own traffic-light threshold.</p></div>
+      <div class="card"><h4 class="card-hdr">Portfolio &amp; Billing</h4><p>Billing and target by banker, monthly and cumulative collections, and active portfolio by client.</p></div>
+      <div class="card"><h4 class="card-hdr">Historical</h4><p>Multi-year revenue, profit, and dividends, with auto-calculated max, min, and averages.</p></div>
+      <div class="card"><h4 class="card-hdr">Cash Flow × 3</h4><p>Monthly cash movement and static/dynamic runway for the local entity, the international (US$) entity, and the consolidated view.</p></div>
+      <div class="card"><h4 class="card-hdr">Business</h4><p>Closed and active mandates by sector, region, product, and banker, with interactive filters.</p></div>
+      <div class="card"><h4 class="card-hdr">Productivity (HR)</h4><p>Employee engagement, turnover, tenure, performance, and weighted revenue contribution by role.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FINANCIAL: Income, Liquidity & Expenses ============ -->
+<div id="vFin1" class="view">
+<div class="page">
+  <div class="page-hdr"><h2>Financial (Income, Liquidity &amp; Expenses)</h2><p>Monthly executive snapshot of commercial, liquidity, credit line, and expenses</p></div>
+
+  <div class="card period-slider single">
+    <div class="psl-top">
+      <h4 class="card-hdr" style="margin:0">Cutoff Month<span class="vtag">Slicer (single month)</span></h4>
+      <span class="psl-current" id="f1CutoffLabel">Aug 2026</span>
+    </div>
+    <div class="psl-track">
+      <div class="psl-rail"></div>
+      <div class="psl-fill" id="f1CutoffFill" style="left:0%;width:66%"></div>
+      <input type="range" id="f1Cutoff" min="0" max="11" value="7" step="1" oninput="onCutoffChange('f1')">
+    </div>
+    <div class="psl-ends"><span>Jan</span><span>Dec</span></div>
+    <div class="psl-note"><span class="tag">Interactive</span>This cutoff-month slicer replicates the one in the real dashboard: it sets the "YTD" month all the KPIs on this page are calculated against. In this demo it only moves the label — the card figures are illustrative and fixed.</div>
+  </div>
+
+  <div class="section-label">Commercial</div>
+  <div class="g4" id="f1KpisComercial" style="margin-bottom:8px"></div>
+  <div class="pill-row" id="f1PillsComercial1"></div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><h4 class="card-hdr">Fixed Fees Target vs. Success Fees Target<span class="vtag">Pie chart</span></h4><canvas id="f1PieMeta" width="360" height="172"></canvas></div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="f1CausadoCards"></div>
+    <div class="card"><h4 class="card-hdr">% Projection vs. Target<span class="vtag">Gauge</span></h4><canvas id="f1Gauge" width="360" height="140"></canvas></div>
+  </div>
+  <div class="g4" id="f1KpisComercial2" style="margin-bottom:8px"></div>
+  <div class="pill-row" id="f1PillsComercial2"></div>
+
+  <div class="section-label">Liquidity</div>
+  <div class="g4" id="f1KpisLiquidez1" style="margin-bottom:10px"></div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card"><h4 class="card-hdr">Demand vs. Term<span class="vtag">100% stacked bar</span></h4><canvas id="f1Stacked100" width="640" height="140"></canvas></div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="f1MixCards"></div>
+  </div>
+  <div class="g4" id="f1KpisLiquidez2"></div>
+
+  <div class="section-label">Credit Line</div>
+  <div class="g3" id="f1KpisCupo" style="margin-bottom:10px"></div>
+  <div class="card">
+    <h4 class="card-hdr">Credit Line Utilization by Facility<span class="vtag">Bar chart</span></h4>
+    <canvas id="f1CupoBar" width="1000" height="320"></canvas>
+  </div>
+
+  <div class="section-label">Expenses</div>
+  <div class="g5" id="f1KpisGastos" style="margin-bottom:8px"></div>
+  <div class="pill-row" id="f1PillsGastos"></div>
+  <div class="g2" style="margin-top:10px" id="f1KpisGastos2"></div>
+
+  <div class="foot-note">Each indicator is measured against its own configurable threshold, defined once in the traffic-light table (BSC Traffic Lights) and reused throughout the report.</div>
+</div>
+</div>
+
+<!-- ============ FINANCIAL II: Portfolio & Billing ============ -->
+<div id="vFin2" class="view">
+<div class="page">
+  <div class="page-hdr"><h2>Financial (Portfolio &amp; Billing)</h2><p>Billing and collections by banker, and status of the active credit portfolio</p></div>
+
+  <div class="card period-slider single">
+    <div class="psl-top">
+      <h4 class="card-hdr" style="margin:0">Cutoff Month<span class="vtag">Slicer (single month)</span></h4>
+      <span class="psl-current" id="f2CutoffLabel">Aug 2026</span>
+    </div>
+    <div class="psl-track">
+      <div class="psl-rail"></div>
+      <div class="psl-fill" id="f2CutoffFill" style="left:0%;width:66%"></div>
+      <input type="range" id="f2Cutoff" min="0" max="11" value="7" step="1" oninput="onCutoffChange('f2')">
+    </div>
+    <div class="psl-ends"><span>Jan</span><span>Dec</span></div>
+    <div class="psl-note"><span class="tag">Interactive</span>Same cutoff-month slicer as the previous page, synced in the real dashboard: it sets the billing and collections month shown. Here it only moves the label — the figures are illustrative and fixed.</div>
+  </div>
+
+  <div class="section-label">Billing</div>
+  <div class="g5" id="f2Kpis" style="margin-bottom:10px"></div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card">
+      <h4 class="card-hdr">Billing % of Target by Banker<span class="vtag">Bar chart</span></h4>
+      <canvas id="f2BarBanquero" width="700" height="320"></canvas>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start" id="f2BankerCards"></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <h4 class="card-hdr">% vs. Billed Target by Client<span class="vtag">Bar chart</span></h4>
+    <canvas id="f2BarCliente" width="1100" height="260"></canvas>
+  </div>
+
+  <div class="section-label">Collections</div>
+  <div class="g4" id="f2KpisRecaudo" style="margin-bottom:8px"></div>
+  <div class="g2" id="f2KpisRecaudo2"></div>
+
+  <div class="section-label">Portfolio</div>
+  <div class="g2">
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center" id="f2CarteraCard"></div>
+    <div class="card"><h4 class="card-hdr">Total Portfolio by Client<span class="vtag">Donut chart</span></h4><canvas id="f2DonutCartera" width="640" height="280"></canvas></div>
+  </div>
+</div>
+</div>
+
+<!-- ============ HISTORICAL ============ -->
+<div id="vHist" class="view">
+<div class="page">
+  <div class="page-hdr"><h2>Historical</h2><p>Multi-year view of the business, with CAGR and key metrics calculated automatically</p></div>
+
+  <div class="card period-slider">
+    <div class="psl-top">
+      <h4 class="card-hdr" style="margin:0">Year Range<span class="vtag">Range slicer</span></h4>
+      <span class="psl-current" id="histRangeLabel">Year 1 – Year 6</span>
+    </div>
+    <div class="psl-track">
+      <div class="psl-rail"></div>
+      <div class="psl-fill" id="histRangeFill"></div>
+      <input type="range" id="histRangeFrom" min="0" max="5" value="0" step="1" oninput="onHistRangeChange()">
+      <input type="range" id="histRangeTo" min="0" max="5" value="5" step="1" oninput="onHistRangeChange()">
+    </div>
+    <div class="psl-ends"><span>Year 1</span><span>Year 6</span></div>
+    <div class="psl-note"><span class="tag">Interactive</span>This control replicates the year-range slicer from the real dashboard: moving either handle redraws the 4 charts on this page over the selected period (the KPI cards still show the full historical record).</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px"><h4 class="card-hdr">Revenue by Year<span class="vtag">Area chart</span></h4><canvas id="hAreaIngresos" width="1100" height="220"></canvas></div>
+  <div class="g3" id="hKpisIngresos" style="margin-bottom:16px"></div>
+
+  <div class="card" style="margin-bottom:14px"><h4 class="card-hdr">Gross · Operating · Pre-Tax Profit<span class="vtag">Line chart (3 series)</span></h4><canvas id="hLineUtilidad" width="1100" height="290"></canvas></div>
+  <div class="g4" id="hKpisUtilidad" style="margin-bottom:16px"></div>
+
+  <div class="card" style="margin-bottom:14px"><h4 class="card-hdr">Dividend Distribution by Year<span class="vtag">Column chart</span></h4><canvas id="hColDividendos" width="1100" height="280"></canvas></div>
+  <div class="g3" id="hKpisDividendos" style="margin-bottom:16px"></div>
+
+  <div class="card"><h4 class="card-hdr">Net Profit by Year<span class="vtag">Line chart</span></h4><canvas id="hLineNeta" width="1100" height="300"></canvas></div>
+  <div class="g4" id="hKpisNeta"></div>
+
+  <div class="foot-note">In the real dashboard, this year-range slicer filters the entire historical view at once; no year is hard-coded into the measures.</div>
+</div>
+</div>
+
+<!-- ============ FLUJO DE CAJA (3 páginas, plantilla compartida) ============ -->
+<div id="vCFA" class="view"><div class="page" id="cfa-mount"></div></div>
+<div id="vCFB" class="view"><div class="page" id="cfb-mount"></div></div>
+<div id="vCFC" class="view"><div class="page" id="cfc-mount"></div></div>
+
+<!-- ============ BUSINESS ============ -->
+<div id="vBiz" class="view">
+<div class="page">
+  <div class="page-hdr"><h2>Business</h2><p>Pipeline of closed and active mandates, by sector, region, product, and banker</p></div>
+
+  <div class="section-label">Closed Mandates</div>
+  <div class="g5" id="bzKpisCerrados1" style="margin-bottom:8px"></div>
+  <div class="g2" id="bzKpisCerrados2" style="margin-bottom:10px"></div>
+  <div class="g3" id="bzKpisCerrados3" style="margin-bottom:10px"></div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="card"><h4 class="card-hdr">Revenue x Region<span class="vtag">Donut</span></h4><canvas id="bzDonutRegionCerrados" width="360" height="240"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Mandates x Product<span class="vtag">Donut</span></h4><canvas id="bzDonutProdMandatosCerrados" width="360" height="240"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Revenue x Product<span class="vtag">Donut</span></h4><canvas id="bzDonutProdIngCerrados" width="360" height="240"></canvas></div>
+  </div>
+
+  <div class="section-label">Active Mandates</div>
+  <div class="g4" id="bzKpisActivos1" style="margin-bottom:8px"></div>
+  <div class="g4" id="bzKpisActivos2" style="margin-bottom:8px"></div>
+  <div class="pill-row" id="bzPillsActivos" style="margin-bottom:10px"></div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="card"><h4 class="card-hdr">Mandates x Product (Active)<span class="vtag">Donut</span></h4><canvas id="bzDonutProdActivos" width="360" height="240"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Revenue x Region (Active)<span class="vtag">Donut</span></h4><canvas id="bzDonutRegionActivos" width="360" height="240"></canvas></div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center" id="bzPotencialCard"></div>
+  </div>
+
+  <div class="section-label">Pipeline Mix</div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="card"><h4 class="card-hdr">By Status<span class="vtag">Donut</span></h4><canvas id="bzDonutStatus" width="360" height="220"></canvas></div>
+    <div class="card"><h4 class="card-hdr">By Mandate Type<span class="vtag">Grouped bars</span></h4><canvas id="bzBarTipo" width="360" height="220"></canvas></div>
+    <div class="card"><h4 class="card-hdr">By Region<span class="vtag">Donut</span></h4><canvas id="bzDonutRegionMix" width="360" height="220"></canvas></div>
+  </div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="card"><h4 class="card-hdr">By Sector<span class="vtag">Donut</span></h4><canvas id="bzDonutSector" width="360" height="220"></canvas></div>
+    <div class="card"><h4 class="card-hdr">By Client Size<span class="vtag">Donut</span></h4><canvas id="bzDonutSize" width="360" height="220"></canvas></div>
+    <div class="card"><h4 class="card-hdr">By Category<span class="vtag">Donut</span></h4><canvas id="bzDonutCateg" width="360" height="220"></canvas></div>
+  </div>
+
+  <div class="section-label">By Banker</div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="card">
+      <h4 class="card-hdr">Mandates by Banker (Origination)<span class="vtag">Donut + slicer</span></h4>
+      <div class="filters" style="margin-bottom:10px"><select id="bzFBanquero1" onchange="renderBiz()"><option value="ALL">All bankers</option></select></div>
+      <canvas id="bzDonutBanquero1" width="500" height="260"></canvas>
+    </div>
+    <div class="card">
+      <h4 class="card-hdr">Mandates by Banker (Execution)<span class="vtag">Donut + slicer</span></h4>
+      <div class="filters" style="margin-bottom:10px"><select id="bzFBanquero2" onchange="renderBiz()"><option value="ALL">All bankers</option></select></div>
+      <canvas id="bzDonutBanquero2" width="500" height="260"></canvas>
+    </div>
+  </div>
+  <div class="foot-note" style="margin-top:0;margin-bottom:16px">The two selectors above represent the real dashboard's slicers (<i>advancedSlicerVisual</i>), which filter by banker — with sector as the label and mandate type/client size as the tooltip. Here they filter the "Mandates by Client" table below.</div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <h4 class="card-hdr">Summary by Sector<span class="vtag">Table</span></h4>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Sector</th><th># Mandates</th><th>% Mandates</th><th>Potential Rev.</th><th>% Potential Rev.</th><th>% Prob.-Adj. Rev.</th></tr></thead><tbody id="bzTableSector"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h4 class="card-hdr">Mandates by Client<span class="vtag">Table</span></h4>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Client</th><th>Sector</th><th>Mandate Type</th><th>Success Prob.</th></tr></thead><tbody id="bzTableCliente"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="section-label">Marketing</div>
+  <div class="g2" id="bzKpisMercadeo" style="margin-bottom:10px"></div>
+  <div class="card">
+    <h4 class="card-hdr">Marketing — YTD Total vs. Monthly Average<span class="vtag">Pivot table</span></h4>
+    <div class="tbl-wrap"><table class="tbl matrix"><thead><tr><th>Metric</th><th>YTD Total</th><th>Monthly Avg.</th></tr></thead><tbody id="bzTableMercadeo"></tbody></table></div>
+  </div>
+</div>
+</div>
+
+<!-- ============ PRODUCTIVITY (HR) ============ -->
+<div id="vHR" class="view">
+<div class="page">
+  <div class="page-hdr"><h2>Productivity (HR)</h2><p>Employee engagement, turnover, tenure, performance, and revenue contribution by role</p></div>
+
+  <div class="g5" style="margin-bottom:16px;align-items:stretch">
+    <div class="card" style="display:flex;align-items:center;justify-content:center" id="hrTotalCard"></div>
+    <div class="card ring-card"><h4 class="card-hdr">Employee Engagement<span class="vtag">Donut (%)</span></h4><canvas id="hrRingClima" width="200" height="200"></canvas><div class="rv" id="hrClimaVal"></div></div>
+    <div class="card ring-card"><h4 class="card-hdr">Turnover<span class="vtag">Donut (%)</span></h4><canvas id="hrRingRotacion" width="200" height="200"></canvas><div class="rv" id="hrRotacionVal"></div></div>
+    <div class="card ring-card"><h4 class="card-hdr">Satisfaction / Wellbeing<span class="vtag">Donut (%)</span></h4><canvas id="hrRingSat" width="200" height="200"></canvas><div class="rv" id="hrSatVal"></div></div>
+    <div class="card ring-card"><h4 class="card-hdr">Vacation Compliance<span class="vtag">Donut (%)</span></h4><canvas id="hrRingVac" width="200" height="200"></canvas><div class="rv" id="hrVacVal"></div></div>
+  </div>
+
+  <div class="section-label">Team Composition</div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card"><h4 class="card-hdr">Headcount by Role<span class="vtag">Donut</span></h4><canvas id="hrDonutRol" width="500" height="230"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Average Tenure by Role<span class="vtag">Column chart</span></h4><canvas id="hrColAntiguedad" width="500" height="230"></canvas></div>
+  </div>
+  <div class="g5" id="hrKpisEquipo" style="margin-bottom:16px"></div>
+
+  <div class="section-label">Revenue per Banker</div>
+  <div class="g5" id="hrKpisIngreso" style="margin-bottom:16px"></div>
+
+  <div class="section-label">Turnover &amp; Performance by Role</div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card"><h4 class="card-hdr">Turnover by Role<span class="vtag">Grouped horizontal bars</span></h4><canvas id="hrHBarRotacion" width="500" height="300"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Performance by Role<span class="vtag">Grouped horizontal bars</span></h4><canvas id="hrHBarDesempeno" width="500" height="300"></canvas></div>
+  </div>
+
+  <div class="section-label">Wellbeing &amp; Attendance</div>
+  <div class="g5" id="hrKpisBienestar1" style="margin-bottom:8px"></div>
+  <div class="g5" id="hrKpisBienestar2" style="margin-bottom:16px"></div>
+
+  <div class="section-label">Social Media &amp; Web</div>
+  <div class="g6" id="hrKpisRedesAnual" style="margin-bottom:8px"></div>
+  <div class="pill-row" id="hrPillsRedesMensual" style="margin-bottom:14px"></div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card"><h4 class="card-hdr">Reach by Coverage<span class="vtag">Donut</span></h4><canvas id="hrDonutAlcance" width="500" height="260"></canvas></div>
+    <div class="card"><h4 class="card-hdr">Web Traffic by Origin<span class="vtag">Donut</span></h4><canvas id="hrDonutWeb" width="500" height="260"></canvas></div>
+  </div>
+  <div class="g3" id="hrKpisWeb" style="margin-bottom:16px"></div>
+
+  <div class="section-label">Events</div>
+  <div class="g4" id="hrKpisEventos"></div>
+</div>
+</div>
+
+<script>
+// ================================================================
+// NAV
+// ================================================================
+function gv(id, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  setTimeout(renderAllCharts, 30);
+}
+
+// ================================================================
+// CHART UTILS (canvas-based, no external dependencies)
+// ================================================================
+const PAL = {blue:'#3b82f6',green:'#10b981',amber:'#f59e0b',red:'#ef4444',purple:'#8b5cf6',cyan:'#06b6d4',orange:'#f97316',pink:'#ec4899',grey:'#64748b'};
+function niceMax(v){ if(v<=0) return 1; const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;return (f<=1?1:f<=2?2:f<=5?5:10)*e; }
+function fmt(v){ const s = v<0?'-':''; v=Math.abs(v); return s+(v>=1000?Math.round(v/100)/10+'k':v>=10?Math.round(v*10)/10:Math.round(v*100)/100); }
+function roundRect(ctx,x,y,w,h,r){ ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath(); }
+
+function drawBarChart(id,labels,data,color,title,source){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=42,PAD_R=12,PAD_T=26,PAD_B=source?34:26;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const max=Math.max(...data), nice=niceMax(max); const ticks=5;
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;
+  for(let t=0;t<=ticks;t++){
+    const y=PAD_T+chartH*(1-t/ticks);
+    ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(PAD_L+chartW,y);ctx.stroke();
+    if(t===ticks){ ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='right'; ctx.fillText(fmt(nice),PAD_L-4,y+3); }
+  }
+  const bw=chartW/labels.length;
+  labels.forEach((l,i)=>{
+    const v=data[i]; const bh=(v/nice)*chartH;
+    const x=PAD_L+i*bw+bw*0.15, y=PAD_T+chartH-bh;
+    const grad=ctx.createLinearGradient(x,y,x,PAD_T+chartH);
+    grad.addColorStop(0,color);grad.addColorStop(1,color+'99');
+    ctx.fillStyle=grad; ctx.beginPath(); roundRect(ctx,x,y,bw*0.7,bh,3); ctx.fill();
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 9px Segoe UI,sans-serif';ctx.textAlign='center';
+    ctx.fillText(fmt(v),x+bw*0.35,y-4);
+    ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';
+    ctx.fillText(l,x+bw*0.35,H-PAD_B+12);
+  });
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,PAD_L,14);
+  if(source){ctx.fillStyle='#64748b';ctx.font='8px Segoe UI,sans-serif';ctx.fillText(source,PAD_L,H-4);}
+}
+
+function drawLineChartMulti(id,labels,series,title,source){
+  // series: [{name,color,data}]
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=48,PAD_R=14,PAD_T=32,PAD_B=source?34:26;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const allVals=series.flatMap(s=>s.data);
+  const max=niceMax(Math.max(...allVals)); const min=Math.min(0,Math.min(...allVals));
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;
+  for(let t=0;t<=4;t++){ const y=PAD_T+chartH*(1-t/4); ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(PAD_L+chartW,y);ctx.stroke();
+    if(t===4){ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='right';ctx.fillText(fmt(max),PAD_L-4,y+3);} }
+  const xs=labels.map((_,i)=>PAD_L+i*(chartW/(labels.length-1)));
+  series.forEach(s=>{
+    const ys=s.data.map(v=>PAD_T+chartH*(1-(v-min)/(max-min)));
+    ctx.strokeStyle=s.color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.beginPath();
+    xs.forEach((x,i)=>i===0?ctx.moveTo(x,ys[i]):ctx.lineTo(x,ys[i])); ctx.stroke();
+    xs.forEach((x,i)=>{ ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(x,ys[i],4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(x,ys[i],2.8,0,Math.PI*2);ctx.fill(); });
+  });
+  labels.forEach((l,i)=>{ ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='center';ctx.fillText(l,xs[i],H-PAD_B+12); });
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,PAD_L,14);
+  let lx=PAD_L;
+  series.forEach(s=>{ ctx.fillStyle=s.color;ctx.fillRect(lx,22,9,9); ctx.fillStyle='#94a3b8';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(s.name,lx+13,30); lx+=ctx.measureText(s.name).width+34; });
+  if(source){ctx.fillStyle='#64748b';ctx.font='8px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(source,PAD_L,H-4);}
+}
+function drawLineChart(id,labels,data,color,title,source){ drawLineChartMulti(id,labels,[{name:title,color,data}],title,source); }
+
+function drawAreaChart(id,labels,data,color,title,source){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=48,PAD_R=14,PAD_T=26,PAD_B=source?34:26;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const max=niceMax(Math.max(...data));
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;
+  for(let t=0;t<=4;t++){ const y=PAD_T+chartH*(1-t/4); ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(PAD_L+chartW,y);ctx.stroke();
+    if(t===4){ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='right';ctx.fillText(fmt(max),PAD_L-4,y+3);} }
+  const xs=labels.map((_,i)=>PAD_L+i*(chartW/(labels.length-1)));
+  const ys=data.map(v=>PAD_T+chartH*(1-v/max));
+  const grad=ctx.createLinearGradient(0,PAD_T,0,PAD_T+chartH);
+  grad.addColorStop(0,color+'55');grad.addColorStop(1,color+'05');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(xs[0],PAD_T+chartH);
+  xs.forEach((x,i)=>ctx.lineTo(x,ys[i])); ctx.lineTo(xs[xs.length-1],PAD_T+chartH);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.beginPath();
+  xs.forEach((x,i)=>i===0?ctx.moveTo(x,ys[i]):ctx.lineTo(x,ys[i])); ctx.stroke();
+  xs.forEach((x,i)=>{ ctx.fillStyle='#f1f5f9';ctx.font='bold 9px Segoe UI,sans-serif';ctx.textAlign='center';ctx.fillText(fmt(data[i]),x,ys[i]-8);
+    ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.fillText(labels[i],x,H-PAD_B+12); });
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,PAD_L,14);
+  if(source){ctx.fillStyle='#64748b';ctx.font='8px Segoe UI,sans-serif';ctx.fillText(source,PAD_L,H-4);}
+}
+
+function drawHBarChart(id,labels,data,color,title){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=124,PAD_R=44,PAD_T=24,PAD_B=8;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const max=Math.max(...data),nice=niceMax(max); const bh=chartH/labels.length;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,13);
+  labels.forEach((l,i)=>{
+    const v=data[i]; const bw=(v/nice)*chartW;
+    const y=PAD_T+i*bh+bh*0.16; const barH=bh*0.68;
+    const grad=ctx.createLinearGradient(PAD_L,y,PAD_L+bw,y);
+    grad.addColorStop(0,color);grad.addColorStop(1,color+'88');
+    ctx.fillStyle=grad; ctx.beginPath();roundRect(ctx,PAD_L,y,bw,barH,3);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9.5px Segoe UI,sans-serif';ctx.textAlign='right';
+    ctx.fillText(l,PAD_L-6,y+barH/2+3.5);
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 9px Segoe UI,sans-serif';ctx.textAlign='left';
+    ctx.fillText(fmt(v),PAD_L+bw+4,y+barH/2+3.5);
+  });
+}
+
+function drawGroupedHBar(id,labels,series,title){
+  // series: [{name,color,data}] grouped per label
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=124,PAD_R=44,PAD_T=30,PAD_B=8;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const allVals=series.flatMap(s=>s.data); const nice=niceMax(Math.max(...allVals));
+  const groupH=chartH/labels.length; const barH=(groupH*0.7)/series.length;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,13);
+  let lx=0;
+  series.forEach(s=>{ ctx.fillStyle=s.color;ctx.fillRect(lx,20,9,9); ctx.fillStyle='#94a3b8';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(s.name,lx+13,28); lx+=ctx.measureText(s.name).width+30; });
+  labels.forEach((l,gi)=>{
+    const gy=PAD_T+gi*groupH+groupH*0.15;
+    series.forEach((s,si)=>{
+      const v=s.data[gi]; const bw=(v/nice)*chartW;
+      const y=gy+si*barH;
+      ctx.fillStyle=s.color; ctx.beginPath();roundRect(ctx,PAD_L,y,bw,barH*0.82,2);ctx.fill();
+      ctx.fillStyle='#f1f5f9';ctx.font='8.5px Segoe UI,sans-serif';ctx.textAlign='left';
+      ctx.fillText(fmt(v),PAD_L+bw+4,y+barH*0.55);
+    });
+    ctx.fillStyle='#94a3b8';ctx.font='9.5px Segoe UI,sans-serif';ctx.textAlign='right';
+    ctx.fillText(l,PAD_L-6,gy+ (barH*series.length)/2+3.5);
+  });
+}
+
+function drawDonut(id, segments, title, centerLabel){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,14);
+  const cx=W*0.27, cy=H/2+10, rOuter=Math.min(W*0.22,H*0.34), rInner=rOuter*0.58;
+  const total=segments.reduce((s,d)=>s+d.value,0);
+  let ang=-Math.PI/2;
+  segments.forEach(seg=>{
+    const slice=(seg.value/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,rOuter,ang,ang+slice);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();
+    ang+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,rInner,0,Math.PI*2);ctx.fillStyle='#1e293b';ctx.fill();
+  ctx.fillStyle='#64748b';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='center';ctx.fillText(centerLabel||'total',cx,cy+4);
+  const lx=Math.max(cx+rOuter+18, W*0.5);
+  const availableW=W-lx-4;
+  const legendFont = availableW<130 ? 8.5 : 9.5;
+  let ly=cy-rOuter+4;
+  ctx.font=legendFont+'px Segoe UI,sans-serif';
+  segments.forEach(seg=>{
+    ctx.fillStyle=seg.color;ctx.fillRect(lx,ly-7,8,8);
+    ctx.fillStyle='#f1f5f9';ctx.font=legendFont+'px Segoe UI,sans-serif';ctx.textAlign='left';
+    let label = seg.label+' — '+fmt(seg.value);
+    while(ctx.measureText(label).width>availableW && label.includes(' — ')){
+      label = label.split(' — ')[0].slice(0,-1)+'… — '+fmt(seg.value);
+      if(label.length<6) break;
+    }
+    ctx.fillText(label,lx+12,ly+1);
+    ly+=16;
+  });
+}
+
+function drawPie(id, segments, title){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,14);
+  const cx=W*0.27, cy=H/2+10, rOuter=Math.min(W*0.24,H*0.36);
+  const total=segments.reduce((s,d)=>s+d.value,0);
+  let ang=-Math.PI/2;
+  segments.forEach(seg=>{
+    const slice=(seg.value/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,rOuter,ang,ang+slice);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();
+    ang+=slice;
+  });
+  const lx=Math.max(cx+rOuter+18, W*0.52);
+  const availableW=W-lx-4;
+  const legendFont = availableW<130 ? 8.5 : 9.5;
+  let ly=cy-rOuter+4;
+  segments.forEach(seg=>{
+    ctx.fillStyle=seg.color;ctx.fillRect(lx,ly-7,8,8);
+    ctx.fillStyle='#f1f5f9';ctx.font=legendFont+'px Segoe UI,sans-serif';ctx.textAlign='left';
+    let label = seg.label+' — '+fmt(seg.value);
+    while(ctx.measureText(label).width>availableW && label.includes(' — ')){
+      label = label.split(' — ')[0].slice(0,-1)+'… — '+fmt(seg.value);
+      if(label.length<6) break;
+    }
+    ctx.fillText(label,lx+12,ly+1);
+    ly+=17;
+  });
+}
+
+function drawGauge(id, value, max, title){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,14);
+  const cx=W/2, cy=H*0.86, rad=Math.min(W*0.40,H*0.62);
+  const start=Math.PI, sweep=Math.PI; // sweep clockwise from 180° through 270° (top) to 360°
+  const zones=[{c:PAL.red,f:0.33},{c:PAL.amber,f:0.34},{c:PAL.green,f:0.33}];
+  let a0=start;
+  zones.forEach(z=>{ const a1=a0+sweep*z.f; ctx.beginPath();ctx.arc(cx,cy,rad,a0,a1,false);ctx.lineWidth=16;ctx.strokeStyle=z.c;ctx.stroke(); a0=a1; });
+  const frac=Math.max(0,Math.min(1,value/max));
+  const needleAngle=start+sweep*frac;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(needleAngle);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(rad*0.82,0);ctx.strokeStyle='#f1f5f9';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.restore();
+  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle='#f1f5f9';ctx.fill();
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 17px Segoe UI,sans-serif';ctx.textAlign='center';
+  ctx.fillText(fmt(value)+(max===100?'%':''), cx, cy-rad*0.32);
+}
+
+// Single-handle "Cutoff Month" slicer (Financial pages) — purely cosmetic: moves the label
+// and fill to show which month the page's KPIs are "as of", matching the real dashboard's
+// month-cutoff slicer without recomputing the illustrative KPI figures.
+const CUTOFF_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function onCutoffChange(prefix){
+  const el = document.getElementById(prefix+'Cutoff');
+  if(!el) return;
+  const idx = parseInt(el.value,10), max = parseInt(el.max,10);
+  const lbl = document.getElementById(prefix+'CutoffLabel');
+  if(lbl) lbl.textContent = CUTOFF_MONTHS[idx]+' 2026';
+  const fill = document.getElementById(prefix+'CutoffFill');
+  if(fill){ fill.style.left='0%'; fill.style.width=(idx/max*100)+'%'; }
+}
+
+function drawRingPercent(id, pct, color){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H/2, rad=Math.min(W,H)*0.38, lw=14;
+  ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=lw;ctx.stroke();
+  const frac=Math.max(0,Math.min(1,pct/100));
+  ctx.beginPath();ctx.arc(cx,cy,rad,-Math.PI/2,-Math.PI/2+frac*Math.PI*2);ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.lineCap='round';ctx.stroke();
+  ctx.fillStyle='#f8fafc';ctx.font='bold 22px Segoe UI,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(Math.round(pct)+'%', cx, cy);
+  ctx.textBaseline='alphabetic';
+}
+
+function drawStacked100(id, segments, title){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,14);
+  const total=segments.reduce((s,d)=>s+d.value,0);
+  const barY=H*0.42, barH=H*0.30, barX=0, barW=W;
+  let x=barX;
+  segments.forEach(seg=>{
+    const w=(seg.value/total)*barW;
+    ctx.fillStyle=seg.color; ctx.beginPath(); roundRect(ctx,x,barY,w,barH,2); ctx.fill();
+    if(w>40){ ctx.fillStyle='#0b1220';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='center'; ctx.fillText(fmt(seg.value), x+w/2, barY+barH/2+4); }
+    x+=w;
+  });
+  let lx=0, ly=barY+barH+22;
+  segments.forEach(seg=>{
+    ctx.fillStyle=seg.color;ctx.fillRect(lx,ly-8,9,9);
+    ctx.fillStyle='#94a3b8';ctx.font='9.5px Segoe UI,sans-serif';ctx.textAlign='left';
+    ctx.fillText(seg.label+' — '+fmt(seg.value), lx+13, ly);
+    lx+=ctx.measureText(seg.label+' — '+fmt(seg.value)).width+38;
+  });
+}
+
+// Multi-category stacked bar (vertical), 2 series per category (e.g. utilized/remaining per credit facility)
+// Multi-row 100%-style stacked horizontal bars (one row per category e.g. banker)
+function drawStackedHBarMulti(id, rows, colorA, colorB, nameA, nameB, title){
+  // rows: [{label, a, b}] values as % (a+b commonly = 100)
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=150,PAD_R=50,PAD_T=30,PAD_B=6;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const rh=chartH/rows.length;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,13);
+  ctx.fillStyle=colorA;ctx.fillRect(W-PAD_R+2,4,9,9);ctx.fillStyle='#94a3b8';ctx.font='9px Segoe UI,sans-serif';
+  rows.forEach((r,i)=>{
+    const total=r.a+r.b;
+    const y=PAD_T+i*rh+rh*0.18, barH=rh*0.64;
+    const wA=(r.a/total)*chartW;
+    ctx.fillStyle=colorA; ctx.beginPath();roundRect(ctx,PAD_L,y,wA,barH,3);ctx.fill();
+    ctx.fillStyle=colorB; ctx.beginPath();roundRect(ctx,PAD_L+wA,y,chartW-wA,barH,3);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9.5px Segoe UI,sans-serif';ctx.textAlign='right';
+    ctx.fillText(r.label,PAD_L-8,y+barH/2+3.5);
+    ctx.fillStyle='#0b1220';ctx.font='bold 9px Segoe UI,sans-serif';ctx.textAlign='center';
+    if(wA>26) ctx.fillText(Math.round(r.a)+'%',PAD_L+wA/2,y+barH/2+3.5);
+  });
+}
+
+// ================================================================
+// UI HELPERS
+// ================================================================
+function kpiCard(label, value, sub, status){
+  return `<div class="card kpi ${status}"><div class="kpi-top"><div class="kpi-lbl">${label}</div><span class="dot ${status}"></span></div><div class="kpi-val">${value}</div><div class="kpi-sub">${sub}</div></div>`;
+}
+function statusBadge(status,text){ return `<span class="badge ${status}"><span class="dot ${status}" style="width:7px;height:7px;margin-top:0"></span>${text}</span>`; }
+function pill(label, value, status){ return `<div class="pill"><span class="dot ${status||'blue'}"></span>${label}: <b>${value}</b></div>`; }
+function miniCard(label, value, sub){ return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="font-size:10px;color:var(--t2)">${label}</div><div style="font-size:16px;font-weight:700;color:#f8fafc">${value}</div>${sub?`<div style="font-size:9.5px;color:var(--t3)">${sub}</div>`:''}</div>`; }
+function bigStat(label,value,sub){ return `<div style="text-align:center"><div style="font-size:11px;color:var(--t2);font-weight:600">${label}</div><div style="font-size:30px;font-weight:700;color:#f8fafc;margin-top:4px">${value}</div>${sub?`<div style="font-size:10px;color:var(--t3);margin-top:2px">${sub}</div>`:''}</div>`; }
+
+// Horizontal stacked bar where bar LENGTH is proportional to each row's absolute total
+// (unlike drawStackedHBarMulti, which always fills the row to 100% width). This matches a
+// plain Power BI "barChart" with two stacked measures, as opposed to a 100%-stacked bar chart.
+// Labels show each segment's own (compliant) value rather than a computed sum.
+function drawStackedHBarAbs(id, rows, colorA, colorB, nameA, nameB, title){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD_L=110,PAD_R=60,PAD_T=38,PAD_B=8;
+  const chartW=W-PAD_L-PAD_R, chartH=H-PAD_T-PAD_B;
+  const totals=rows.map(r=>r.a+r.b); const nice=niceMax(Math.max(...totals));
+  const rh=chartH/rows.length;
+  ctx.fillStyle='#f1f5f9';ctx.font='bold 10px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(title,0,13);
+  let legX=PAD_L;
+  ctx.fillStyle=colorA;ctx.fillRect(legX,20,9,9);ctx.fillStyle='#94a3b8';ctx.font='9px Segoe UI,sans-serif';ctx.textAlign='left';ctx.fillText(nameA,legX+13,28);
+  legX+=ctx.measureText(nameA).width+34;
+  ctx.fillStyle=colorB;ctx.fillRect(legX,20,9,9);ctx.fillStyle='#94a3b8';ctx.fillText(nameB,legX+13,28);
+  rows.forEach((r,i)=>{
+    const y=PAD_T+i*rh+rh*0.18, barH=rh*0.64;
+    const wA=(r.a/nice)*chartW, wB=(r.b/nice)*chartW;
+    ctx.fillStyle=colorA; ctx.beginPath();roundRect(ctx,PAD_L,y,wA,barH,2);ctx.fill();
+    ctx.fillStyle=colorB; ctx.beginPath();roundRect(ctx,PAD_L+wA,y,wB,barH,2);ctx.fill();
+    ctx.fillStyle='#94a3b8';ctx.font='9.5px Segoe UI,sans-serif';ctx.textAlign='right';
+    ctx.fillText(r.label,PAD_L-8,y+barH/2+3.5);
+    ctx.fillStyle='#f1f5f9';ctx.font='bold 8.5px Segoe UI,sans-serif';ctx.textAlign='left';
+    if(r.a>0 && wA>18) ctx.fillText(fmt(r.a),PAD_L+3,y+barH/2+3);
+    if(r.b>0 && wB>18) ctx.fillText(fmt(r.b),PAD_L+wA+3,y+barH/2+3);
+  });
+}
+
+// ================================================================
+// FINANCIAL — Income, Liquidity & Expenses
+// ================================================================
+function renderFin1(){
+  document.getElementById('f1KpisComercial').innerHTML = [
+    kpiCard('Annual Commercial Target','$1,000mm','revenue target for the year','blue'),
+    kpiCard('YTD Accrued','$100mm','revenue accrued for the year','green'),
+    kpiCard('Fixed Fees, Closed + Active Projects','$100mm','closed + active projects','green'),
+    kpiCard('Fixed Expense Coverage','100%','accrued revenue vs. fixed expense','green'),
+  ].join('');
+  document.getElementById('f1PillsComercial1').innerHTML = [
+    pill('% vs. Accrued Target','10%','amber'),
+    pill('% Fixed Fees Proj. vs. Target','100%','green'),
+  ].join('');
+
+  drawPie('f1PieMeta',[
+    {label:'Fixed Fees',value:1000,color:PAL.blue},
+    {label:'Success Fees',value:100,color:PAL.purple},
+  ],'Composition of the Annual Commercial Target');
+
+  document.getElementById('f1CausadoCards').innerHTML = [
+    miniCard('Fixed Fees Accrued','$100mm','% vs. Target: 10%'),
+    miniCard('Success Fees Accrued','$10mm','% vs. Target: 100%'),
+  ].join('');
+
+  drawGauge('f1Gauge', 100, 100, '% Projection vs. Target');
+
+  document.getElementById('f1KpisComercial2').innerHTML = [
+    kpiCard('Fixed Exp. Coverage / Accrued Rev.','100%','accrued revenue + fixed fee','green'),
+    kpiCard('Accrued Rev. + Fixed Fee','$100mm','accrued revenue plus fixed fee','green'),
+    kpiCard('Total Estimated Revenue 2026','$1,000mm','projected total revenue for the year','blue'),
+    kpiCard('Total Potential, Prob. &gt; 50%','$100mm','probability-weighted pipeline','amber'),
+  ].join('');
+  document.getElementById('f1PillsComercial2').innerHTML = [
+    pill('% Accrued Rev. + Fixed Fee vs. Target','100%','green'),
+    pill('% Potential Prob. &gt; 50% vs. Target','10%','amber'),
+    pill('% Estimated Revenue 2026 vs. Target','100%','green'),
+  ].join('');
+
+  document.getElementById('f1KpisLiquidez1').innerHTML = [
+    kpiCard('Cash &amp; Investments','$100mm','total cash and investment balance','green'),
+    kpiCard('AM Entity Position (USD thousands)','$100 thousand','position in the asset management entity','green'),
+    kpiCard('Combined Position','$100mm','consolidated local + international cash','green'),
+    kpiCard('Demand / Term','$100mm / $10mm','distribution of available cash','blue'),
+  ].join('');
+
+  drawStacked100('f1Stacked100',[
+    {label:'Demand',value:100,color:PAL.blue},
+    {label:'Term',value:10,color:PAL.cyan},
+  ],'Demand vs. Term (% of cash)');
+
+  document.getElementById('f1MixCards').innerHTML = [
+    miniCard("Int'l / AM",'100 / 10','cash mix by entity'),
+    miniCard('COP / USD','100 / 10','cash mix by currency'),
+  ].join('');
+
+  document.getElementById('f1KpisLiquidez2').innerHTML = [
+    kpiCard('Local Runway','10x','months of operations covered','green'),
+    kpiCard('Liquidity Yield','10%','annualized return on cash','amber'),
+    kpiCard('% COP / US Combined','100 / 10','consolidated cash mix','green'),
+    kpiCard('Total Runway','10x','months of consolidated operations','green'),
+  ].join('');
+
+  document.getElementById('f1KpisCupo').innerHTML = [
+    kpiCard('Active Credit Line','$1,000mm','total credit line available with banks','blue'),
+    kpiCard('Active Credit Facilities','10','active credit facilities','green'),
+    kpiCard('% Credit Line Utilization','10%','percentage of the credit line in use','amber'),
+  ].join('');
+  drawStackedHBarAbs('f1CupoBar',[
+      {label:'Facility 1', a:1000, b:0},
+      {label:'Facility 2', a:100,  b:1000},
+      {label:'Facility 3', a:10,   b:100},
+      {label:'Facility 4', a:1,    b:10},
+    ],
+    PAL.blue,'rgba(255,255,255,.12)','Utilized','Remaining',
+    'Credit Line Utilization by Facility');
+
+  document.getElementById('f1KpisGastos').innerHTML = [
+    kpiCard('Total Proj. Operating Expense','$1,000mm','annual operating expense budget','blue'),
+    kpiCard('Accumulated Expense','$100mm','executed year-to-date','green'),
+    kpiCard('Prior Month Close Execution','100%',"execution of last month's close",'green'),
+    kpiCard('Monthly','$10mm','recurring expense for the month','green'),
+    kpiCard('Projected Expense Execution','$1,000mm','projected year-end expense close','amber'),
+  ].join('');
+  document.getElementById('f1PillsGastos').innerHTML = [
+    pill('% Projected Expense Execution','100%','green'),
+    pill('Expense Execution','10%','amber'),
+  ].join('');
+  document.getElementById('f1KpisGastos2').innerHTML = [
+    kpiCard('Interest Income','$10mm','financial returns for the period','green'),
+    kpiCard('FX Difference','$1mm','net exchange-rate effect','amber'),
+  ].join('');
+}
+// ================================================================
+// FINANCIAL II — Portfolio & Billing
+// ================================================================
+const BANKERS = ['Senior Banker 1','Senior Banker 2','Senior Banker 3','Senior Banker 4','Senior Banker 5','Senior Banker 6'];
+const CLIENTS_F2 = ['Client A','Client B','Client C','Client D','Client E','Client F','Client G','Client H'];
+
+function renderFin2(){
+  document.getElementById('f2Kpis').innerHTML = [
+    kpiCard('YTD Billed','$1,000mm','cumulative billing for the year','blue'),
+    kpiCard('Months Elapsed FY 2026','10','of 12 months in the fiscal year','grey'),
+    kpiCard('Prior Month Billing','$100mm','billed last month','green'),
+    kpiCard('Average Monthly Billing','$100mm','average of the elapsed months','green'),
+    kpiCard('% Billing / Accrued Revenue','100%','billed vs. accrued revenue','amber'),
+  ].join('');
+
+  const bankerVal=[1000,100,100,10,10,1];
+  const bankerPct=[100,100,10,10,1,1];
+  drawStackedHBarMulti('f2BarBanquero',
+    BANKERS.map((b,i)=>({label:b,a:bankerPct[i],b:100-bankerPct[i]})),
+    PAL.blue,'rgba(255,255,255,.12)','% Target','Remaining',
+    'Billing % of Target by Banker');
+
+  document.getElementById('f2BankerCards').innerHTML = BANKERS.map((b,i)=>
+    miniCard(b, '$'+bankerVal[i].toLocaleString('en-US')+'mm', '% Individual Target: '+bankerPct[i]+'%')
+  ).join('');
+
+  const clientPct=[100,100,10,10,1,1,0,0];
+  drawStackedHBarMulti('f2BarCliente',
+    CLIENTS_F2.map((c,i)=>({label:c,a:clientPct[i],b:100-clientPct[i]})),
+    PAL.cyan,'rgba(255,255,255,.12)','% Target Billed','Remaining',
+    '% vs. Billed Target by Client');
+
+  document.getElementById('f2KpisRecaudo').innerHTML = [
+    kpiCard('Last Month Collections','$100mm','collected last month','green'),
+    kpiCard('Prior Month Collections Target','$100mm',"prior month's target",'blue'),
+    kpiCard('Collections Achievement','100%',"collections vs. the month's target",'amber'),
+    kpiCard('Next Month Collections Target','$100mm','target for next month','blue'),
+  ].join('');
+  document.getElementById('f2KpisRecaudo2').innerHTML = [
+    kpiCard('Total Accumulated Collections','$1,000mm','cumulative collections for the year','green'),
+    kpiCard('% Accumulated Collections','100%','accumulated collections vs. billed','green'),
+  ].join('');
+
+  document.getElementById('f2CarteraCard').innerHTML = bigStat('Total Portfolio','$1,000mm','active credit portfolio balance');
+
+  drawDonut('f2DonutCartera',
+    CLIENTS_F2.slice(0,6).map((c,i)=>({label:c,value:[1000,100,100,10,10,1][i],color:[PAL.blue,PAL.green,PAL.amber,PAL.purple,PAL.cyan,PAL.orange][i]})),
+    'Total Portfolio by Client','total');
+}
+// ================================================================
+// HISTORICAL
+// ================================================================
+const HIST_YEARS = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6'];
+const HIST_DATA = {
+  ingresos:        [10,1000,100,10,1000,1000],
+  utilidadBruta:   [1,10,1000,100,10,1000],
+  utilidadOperac:  [0,1,100,10,1,100],
+  utilidadAntesImp:[0,0,10,1,0,10],
+  dividendos:      [1,10,1,100,10,1000],
+  utilidadNeta:    [10,1,100,1000,10,100],
+};
+
+function renderHist(){
+  document.getElementById('hKpisIngresos').innerHTML = [
+    kpiCard('Last Year Revenue','$1,000mm','most recent fiscal year','green'),
+    kpiCard('Maximum Revenue','$1,000mm','year with the highest historical revenue','green'),
+    kpiCard('Average Revenue','$100mm','average across the full history','blue'),
+  ].join('');
+  document.getElementById('hKpisUtilidad').innerHTML = [
+    kpiCard('Last Year Gross Profit','$1,000mm','most recent fiscal year','green'),
+    kpiCard('Last Year Net Profit','$100mm','most recent fiscal year','green'),
+    kpiCard('Minimum Net Profit','$1mm','year with the lowest net profit','red'),
+    kpiCard('Maximum Net Profit','$1,000mm','year with the highest net profit','green'),
+  ].join('');
+  document.getElementById('hKpisDividendos').innerHTML = [
+    kpiCard('Last Year Dividends','$1,000mm','distributed in the most recent year','green'),
+    kpiCard('Accumulated Dividends','$1,000mm','cumulative historical amount distributed','blue'),
+    kpiCard('Years Without Distribution','0','years without a dividend distribution','green'),
+  ].join('');
+  document.getElementById('hKpisNeta').innerHTML = [
+    kpiCard('Last Year Net Profit','$100mm','most recent fiscal year','green'),
+    kpiCard('Minimum Net Profit','$1mm','year with the lowest net profit','red'),
+    kpiCard('Average Net Profit','$100mm','historical average','blue'),
+    kpiCard('Net Profit CAGR','10%','compound annual growth rate','green'),
+  ].join('');
+
+  drawHistCharts(0, HIST_YEARS.length-1);
+  onHistRangeChange();
+}
+
+function drawHistCharts(fromIdx, toIdx){
+  const years = HIST_YEARS.slice(fromIdx, toIdx+1);
+  drawAreaChart('hAreaIngresos', years, HIST_DATA.ingresos.slice(fromIdx,toIdx+1), PAL.blue, 'Revenue by Year','Illustrative demo data');
+  drawLineChartMulti('hLineUtilidad', years, [
+    {name:'Gross Profit',color:PAL.blue,data:HIST_DATA.utilidadBruta.slice(fromIdx,toIdx+1)},
+    {name:'Operating Profit',color:PAL.green,data:HIST_DATA.utilidadOperac.slice(fromIdx,toIdx+1)},
+    {name:'Pre-Tax Profit',color:PAL.amber,data:HIST_DATA.utilidadAntesImp.slice(fromIdx,toIdx+1)},
+  ],'Gross · Operating · Pre-Tax Profit');
+  drawBarChart('hColDividendos', years, HIST_DATA.dividendos.slice(fromIdx,toIdx+1), PAL.purple, 'Dividend Distribution by Year','Illustrative demo data');
+  drawLineChart('hLineNeta', years, HIST_DATA.utilidadNeta.slice(fromIdx,toIdx+1), PAL.cyan, 'Net Profit by Year','Illustrative demo data');
+}
+
+// Wired to the two range-slider handles (Year Range). Keeps "from" <= "to",
+// updates the live label/fill, and redraws all 4 charts on the selected sub-range.
+function onHistRangeChange(){
+  const fromEl=document.getElementById('histRangeFrom'), toEl=document.getElementById('histRangeTo');
+  if(!fromEl||!toEl) return;
+  let from=parseInt(fromEl.value,10), to=parseInt(toEl.value,10);
+  if(from>to){ const t=from; from=to; to=t; }
+  const max=parseInt(fromEl.max,10);
+  document.getElementById('histRangeLabel').textContent = HIST_YEARS[from]+' – '+HIST_YEARS[to];
+  const fill=document.getElementById('histRangeFill');
+  if(fill){ fill.style.left=(from/max*100)+'%'; fill.style.width=((to-from)/max*100)+'%'; }
+  drawHistCharts(from, to);
+}
+// ================================================================
+// CASH FLOW (3 pages — Local, International US$, Consolidated)
+// ================================================================
+const CF_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function matrixTable(rowLabels, months, dataRows){
+  let head = '<tr><th>Line Item</th>'+months.map(m=>`<th>${m}</th>`).join('')+'</tr>';
+  let body = rowLabels.map((r,i)=>'<tr><td>'+r+'</td>'+dataRows[i].map(v=>`<td>${v.toLocaleString('en-US')}</td>`).join('')+'</tr>').join('');
+  return `<table class="tbl matrix"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+
+// Reusable "Month Range" slider card — same visual language as the Historical "Year Range" slider.
+function periodSliderHTML(prefix, maxIdx, label){
+  return `
+    <div class="card period-slider">
+      <div class="psl-top">
+        <h4 class="card-hdr" style="margin:0">Month Range<span class="vtag">Range slicer</span></h4>
+        <span class="psl-current" id="${prefix}RangeLabel">${label[0]} – ${label[maxIdx]}</span>
+      </div>
+      <div class="psl-track">
+        <div class="psl-rail"></div>
+        <div class="psl-fill" id="${prefix}RangeFill" style="left:0%;width:100%"></div>
+        <input type="range" id="${prefix}RangeFrom" min="0" max="${maxIdx}" value="0" step="1" oninput="onCFRangeChange('${prefix}')">
+        <input type="range" id="${prefix}RangeTo" min="0" max="${maxIdx}" value="${maxIdx}" step="1" oninput="onCFRangeChange('${prefix}')">
+      </div>
+      <div class="psl-ends"><span>${label[0]}</span><span>${label[maxIdx]}</span></div>
+      <div class="psl-note"><span class="tag">Interactive</span>This control replicates the month-range slicer from the real dashboard: moving it redraws the matrix table and every line chart on this page over the selected period (the "Card" KPIs still show the latest available month).</div>
+    </div>`;
+}
+
+function cfTemplate(entityName, currencyNote, prefix, sections){
+  let html = `<div class="page-hdr"><h2>Cash Flow — ${entityName}</h2><p>Monthly cash movement${currencyNote?' ('+currencyNote+')':''}, with static and dynamic runway</p></div>`;
+  html += periodSliderHTML(prefix, CF_MONTHS.length-1, CF_MONTHS);
+  html += `
+    <div class="section-label">Monthly Detail</div>
+    <div class="card" style="margin-bottom:16px" id="${prefix}MatrixWrap">
+      <h4 class="card-hdr">Line Item x Month<span class="vtag">Matrix (pivot table)</span></h4>
+      <div class="tbl-wrap">${matrixTable(
+        ['Opening Balance','Total Income','Total Expenses Incl. Bonus','Net for the Month','Actual Balance'],
+        CF_MONTHS,
+        sections.matrix
+      )}</div>
+    </div>`;
+  sections.lines.forEach(sec=>{
+    html += `
+    <div class="section-label">${sec.label}</div>
+    <div class="g2" style="margin-bottom:16px">
+      <div class="card" style="grid-column:span 2">
+        <h4 class="card-hdr">${sec.label} — Monthly Trend<span class="vtag">Line chart</span></h4>
+        <canvas id="${sec.id}" width="1100" height="200"></canvas>
+      </div>
+    </div>
+    <div class="g3" style="margin-bottom:16px">${sec.cards.map(c=>kpiCard(c.label,c.value,c.sub,c.status)).join('')}</div>`;
+  });
+  return html;
+}
+
+// Registry populated by renderCF(); onCFRangeChange() reads from this to re-slice + redraw.
+const CF_REGISTRY = {};
+
+function renderCF(){
+  // ---------- LOCAL (Inverlink SAS, COP) ----------
+  const cfaSaldoInicial=[10,10,100,10,1000,100,10,1000,100,10,100,1000];
+  const cfaIngresos=[1,10,100,10,1,100,1000,100,10,1,10,100];
+  const cfaEgresos=[1,1,10,100,10,1,100,10,1,100,10,100];
+  const cfaNeto=[0,1,0,10,1,0,10,1,100,10,1,10];
+  const cfaSaldoReal=[10,100,10,1000,10,100,1000,10,100,1000,10,1000];
+  const cfaRunwayDin=[1,1,10,1,100,10,1,10,100,10,1,10];
+  const cfaRunwayEst=[10,1,1,10,1,100,10,1,10,100,1,10];
+
+  document.getElementById('cfa-mount').innerHTML = cfTemplate('Inverlink SAS (Local, COP)', 'local currency', 'cfa', {
+    matrix: [cfaSaldoInicial, cfaIngresos, cfaEgresos, cfaNeto, cfaSaldoReal],
+    lines: [
+      {label:'Opening Balance', id:'cfaSaldoInicial', cards:[{label:'Opening Balance (Card)',value:'$1,000mm',sub:"balance at the start of the current month",status:'blue'}]},
+      {label:'Total Income', id:'cfaIngresos', cards:[{label:'Total Income (Card)',value:'$100mm',sub:'income for the current month',status:'green'}]},
+      {label:'Total Expenses Incl. Bonus', id:'cfaEgresos', cards:[{label:'Total Expenses (Card)',value:'$100mm',sub:'expenses incl. bonus for the month',status:'amber'}]},
+      {label:'Net for the Month', id:'cfaNeto', cards:[{label:'Net for the Month (Card)',value:'$10mm',sub:'income minus expenses for the month',status:'green'}]},
+      {label:'Actual Balance', id:'cfaSaldoReal', cards:[{label:'Actual Balance (Card)',value:'$1,000mm',sub:'actual month-end closing balance',status:'green'}]},
+      {label:'Static / Dynamic Runway', id:'cfaRunway', cards:[
+        {label:'Static Runway (Card)',value:'10x',sub:'months covered, static calculation',status:'green'},
+        {label:'Dynamic Runway (Card)',value:'10x',sub:'months covered, rolling average',status:'green'},
+      ]},
+    ]
+  });
+  CF_REGISTRY.cfa = {
+    months: CF_MONTHS,
+    matrixRows: ['Opening Balance','Total Income','Total Expenses Incl. Bonus','Net for the Month','Actual Balance'],
+    matrixData: [cfaSaldoInicial, cfaIngresos, cfaEgresos, cfaNeto, cfaSaldoReal],
+    lines: [
+      {id:'cfaSaldoInicial', data:cfaSaldoInicial, color:PAL.blue, title:'Opening Balance'},
+      {id:'cfaIngresos', data:cfaIngresos, color:PAL.green, title:'Total Income'},
+      {id:'cfaEgresos', data:cfaEgresos, color:PAL.red, title:'Total Expenses Incl. Bonus'},
+      {id:'cfaNeto', data:cfaNeto, color:PAL.amber, title:'Net for the Month'},
+      {id:'cfaSaldoReal', data:cfaSaldoReal, color:PAL.cyan, title:'Actual Balance'},
+    ],
+    multiLines: [{id:'cfaRunway', title:'Dynamic vs. Static Runway', series:[
+      {name:'Dynamic Runway',color:PAL.green,data:cfaRunwayDin},
+      {name:'Static Runway',color:PAL.blue,data:cfaRunwayEst},
+    ]}]
+  };
+  drawLineChart('cfaSaldoInicial', CF_MONTHS, cfaSaldoInicial, PAL.blue,'Opening Balance','Illustrative demo data');
+  drawLineChart('cfaIngresos', CF_MONTHS, cfaIngresos, PAL.green,'Total Income','Illustrative demo data');
+  drawLineChart('cfaEgresos', CF_MONTHS, cfaEgresos, PAL.red,'Total Expenses Incl. Bonus','Illustrative demo data');
+  drawLineChart('cfaNeto', CF_MONTHS, cfaNeto, PAL.amber,'Net for the Month','Illustrative demo data');
+  drawLineChart('cfaSaldoReal', CF_MONTHS, cfaSaldoReal, PAL.cyan,'Actual Balance','Illustrative demo data');
+  drawLineChartMulti('cfaRunway', CF_MONTHS, [
+    {name:'Dynamic Runway',color:PAL.green,data:cfaRunwayDin},
+    {name:'Static Runway',color:PAL.blue,data:cfaRunwayEst},
+  ],'Dynamic vs. Static Runway');
+
+  // ---------- INTERNATIONAL (US$) ----------
+  const cfbSaldoInicial=[1,1,10,1,100,10,1,100,10,1,10,100];
+  const cfbIngresos=[1,10,1,1,10,100,1,10,1,10,1,10];
+  const cfbEgresos=[0,1,1,10,1,1,10,100,1,10,1,10];
+  const cfbNeto=[0,0,1,0,1,0,1,0,1,0,0,1];
+  const cfbSaldoReal=[1,1,10,1,100,10,1,10,100,10,1,100];
+
+  document.getElementById('cfb-mount').innerHTML = cfTemplate('Inverlink Int. SAS', 'US$', 'cfb', {
+    matrix: [cfbSaldoInicial, cfbIngresos, cfbEgresos, cfbNeto, cfbSaldoReal],
+    lines: [
+      {label:"Int'l Opening Balance", id:'cfbSaldoInicial', cards:[{label:"Int'l Opening Balance (Card)",value:'US$100k',sub:'balance at the start of the current month',status:'blue'}]},
+      {label:"Int'l Total Income", id:'cfbIngresos', cards:[{label:"Int'l Total Income (Card)",value:'US$10k',sub:'income for the current month',status:'green'}]},
+      {label:"Int'l Total Expenses Incl. Bonus", id:'cfbEgresos', cards:[{label:"Int'l Total Expenses (Card)",value:'US$10k',sub:'expenses incl. bonus for the month',status:'amber'}]},
+      {label:"Int'l Net for the Month", id:'cfbNeto', cards:[{label:"Int'l Net for the Month (Card)",value:'US$1k',sub:'income minus expenses for the month',status:'green'}]},
+      {label:"Int'l Actual Balance", id:'cfbSaldoReal', cards:[{label:"Int'l Actual Balance (Card)",value:'US$100k',sub:'actual month-end closing balance',status:'green'}]},
+    ]
+  });
+  CF_REGISTRY.cfb = {
+    months: CF_MONTHS,
+    matrixRows: ['Opening Balance','Total Income','Total Expenses Incl. Bonus','Net for the Month','Actual Balance'],
+    matrixData: [cfbSaldoInicial, cfbIngresos, cfbEgresos, cfbNeto, cfbSaldoReal],
+    lines: [
+      {id:'cfbSaldoInicial', data:cfbSaldoInicial, color:PAL.blue, title:"Int'l Opening Balance"},
+      {id:'cfbIngresos', data:cfbIngresos, color:PAL.green, title:"Int'l Total Income"},
+      {id:'cfbEgresos', data:cfbEgresos, color:PAL.red, title:"Int'l Total Expenses Incl. Bonus"},
+      {id:'cfbNeto', data:cfbNeto, color:PAL.amber, title:"Int'l Net for the Month"},
+      {id:'cfbSaldoReal', data:cfbSaldoReal, color:PAL.cyan, title:"Int'l Actual Balance"},
+    ],
+    multiLines: []
+  };
+  drawLineChart('cfbSaldoInicial', CF_MONTHS, cfbSaldoInicial, PAL.blue,"Int'l Opening Balance",'Illustrative demo data');
+  drawLineChart('cfbIngresos', CF_MONTHS, cfbIngresos, PAL.green,"Int'l Total Income",'Illustrative demo data');
+  drawLineChart('cfbEgresos', CF_MONTHS, cfbEgresos, PAL.red,"Int'l Total Expenses Incl. Bonus",'Illustrative demo data');
+  drawLineChart('cfbNeto', CF_MONTHS, cfbNeto, PAL.amber,"Int'l Net for the Month",'Illustrative demo data');
+  drawLineChart('cfbSaldoReal', CF_MONTHS, cfbSaldoReal, PAL.cyan,"Int'l Actual Balance",'Illustrative demo data');
+
+  // ---------- CONSOLIDATED ----------
+  const cfcPosicion=[10,10,100,10,1000,100,10,100,1000,100,10,1000];
+  const cfcRunwaySinDiv=[1,1,10,1,10,100,10,1,10,1,1,10];
+  const cfcRunwayCons=[1,10,1,1,10,1,100,10,1,10,1,10];
+
+  let htmlC = `<div class="page-hdr"><h2>Cash Flow — Consolidated</h2><p>Combined cash position and consolidated runway (local + international)</p></div>`;
+  htmlC += periodSliderHTML('cfc', CF_MONTHS.length-1, CF_MONTHS);
+  htmlC += `
+    <div class="section-label">Monthly Detail</div>
+    <div class="card" style="margin-bottom:16px" id="cfcMatrixWrap">
+      <h4 class="card-hdr">Combined Cash — Line Item x Month<span class="vtag">Matrix (pivot table)</span></h4>
+      <div class="tbl-wrap">${matrixTable(['Combined Cash Position'], CF_MONTHS, [cfcPosicion])}</div>
+    </div>
+    <div class="section-label">Combined Cash Position</div>
+    <div class="card" style="margin-bottom:12px"><h4 class="card-hdr">Combined Cash Position — Monthly Trend<span class="vtag">Line chart</span></h4><canvas id="cfcPosicion" width="1100" height="220"></canvas></div>
+    <div class="g3" style="margin-bottom:16px">${kpiCard('Combined Cash Position (Card)','$1,000mm','consolidated cash balance at close','green')}</div>
+    <div class="section-label">Consolidated Runway</div>
+    <div class="card" style="margin-bottom:12px"><h4 class="card-hdr">Total Runway (Ex-Dividends vs. Consolidated)<span class="vtag">Line chart</span></h4><canvas id="cfcRunway" width="1100" height="220"></canvas></div>
+    <div class="g2">${kpiCard('Total Consolidated Runway','10x','months of consolidated operations','green')}${kpiCard('Total Runway Ex-Dividends','10x','months, excluding future dividends','green')}</div>
+  `;
+  document.getElementById('cfc-mount').innerHTML = htmlC;
+  CF_REGISTRY.cfc = {
+    months: CF_MONTHS,
+    matrixRows: ['Combined Cash Position'],
+    matrixData: [cfcPosicion],
+    lines: [{id:'cfcPosicion', data:cfcPosicion, color:PAL.blue, title:'Combined Cash Position'}],
+    multiLines: [{id:'cfcRunway', title:'Runway Ex-Dividends vs. Consolidated', series:[
+      {name:'Runway Ex-Dividends',color:PAL.green,data:cfcRunwaySinDiv},
+      {name:'Consolidated Runway',color:PAL.blue,data:cfcRunwayCons},
+    ]}]
+  };
+  drawLineChart('cfcPosicion', CF_MONTHS, cfcPosicion, PAL.blue,'Combined Cash Position','Illustrative demo data');
+  drawLineChartMulti('cfcRunway', CF_MONTHS, [
+    {name:'Runway Ex-Dividends',color:PAL.green,data:cfcRunwaySinDiv},
+    {name:'Consolidated Runway',color:PAL.blue,data:cfcRunwayCons},
+  ],'Runway Ex-Dividends vs. Consolidated');
+}
+
+// Wired to each cash-flow page's "Month Range" slider. Re-slices the matrix table and
+// every line chart on that page to the selected month range.
+function onCFRangeChange(prefix){
+  const reg = CF_REGISTRY[prefix];
+  if(!reg) return;
+  const fromEl=document.getElementById(prefix+'RangeFrom'), toEl=document.getElementById(prefix+'RangeTo');
+  if(!fromEl||!toEl) return;
+  let from=parseInt(fromEl.value,10), to=parseInt(toEl.value,10);
+  if(from>to){ const t=from; from=to; to=t; }
+  const max=parseInt(fromEl.max,10);
+  document.getElementById(prefix+'RangeLabel').textContent = reg.months[from]+' – '+reg.months[to];
+  const fill=document.getElementById(prefix+'RangeFill');
+  if(fill){ fill.style.left=(from/max*100)+'%'; fill.style.width=((to-from)/max*100)+'%'; }
+  const monthsSlice = reg.months.slice(from, to+1);
+
+  document.getElementById(prefix+'MatrixWrap').querySelector('.tbl-wrap').innerHTML =
+    matrixTable(reg.matrixRows, monthsSlice, reg.matrixData.map(arr=>arr.slice(from,to+1)));
+
+  reg.lines.forEach(l=> drawLineChart(l.id, monthsSlice, l.data.slice(from,to+1), l.color, l.title, 'Illustrative demo data'));
+  (reg.multiLines||[]).forEach(ml=> drawLineChartMulti(ml.id, monthsSlice,
+    ml.series.map(s=>({name:s.name,color:s.color,data:s.data.slice(from,to+1)})), ml.title));
+}
+// ================================================================
+// BUSINESS
+// ================================================================
+const BIZ_SECTORS = ['Sector 1','Sector 2','Sector 3','Sector 4'];
+const BIZ_TIPOS = ['Type A','Type B','Type C'];
+const BIZ_SIZES = ['Large','Medium','Small'];
+const BIZ_BANKERS = ['Senior Banker 1','Senior Banker 2','Senior Banker 3','Senior Banker 4'];
+const BIZ_CLIENTS = [
+  {client:'Client A', sector:'Sector 1', type:'Type A', prob:100, banker:'Senior Banker 1'},
+  {client:'Client B', sector:'Sector 2', type:'Type B', prob:10,  banker:'Senior Banker 2'},
+  {client:'Client C', sector:'Sector 1', type:'Type A', prob:10,  banker:'Senior Banker 3'},
+  {client:'Client D', sector:'Sector 3', type:'Type C', prob:100, banker:'Senior Banker 4'},
+  {client:'Client E', sector:'Sector 4', type:'Type B', prob:1,   banker:'Senior Banker 1'},
+  {client:'Client F', sector:'Sector 2', type:'Type A', prob:1,   banker:'Senior Banker 2'},
+  {client:'Client G', sector:'Sector 1', type:'Type C', prob:100, banker:'Senior Banker 3'},
+  {client:'Client H', sector:'Sector 3', type:'Type B', prob:0,   banker:'Senior Banker 4'},
+];
+
+// "By Banker" slicers (real advancedSlicerVisual: Values = Banker, Label = Sector)
+function populateBizFilters(){
+  const b1=document.getElementById('bzFBanquero1'), b2=document.getElementById('bzFBanquero2');
+  BIZ_BANKERS.forEach(b=>{
+    const o1=document.createElement('option'); o1.value=b; o1.textContent=b; b1.appendChild(o1);
+    const o2=document.createElement('option'); o2.value=b; o2.textContent=b; b2.appendChild(o2);
+  });
+}
+
+function renderBiz(){
+  const fB1=document.getElementById('bzFBanquero1').value, fB2=document.getElementById('bzFBanquero2').value;
+  const filteredClients = BIZ_CLIENTS.filter(c => (fB1==='ALL'||c.banker===fB1) && (fB2==='ALL'||c.banker===fB2));
+
+  // --- Closed ---
+  document.getElementById('bzKpisCerrados1').innerHTML = [
+    kpiCard('Mandate Count','100','mandates closed in the period','blue'),
+    kpiCard('With Success Fee','10','closed with a success fee agreed','green'),
+    kpiCard('Without Success Fee','10','closed without a success fee agreed','grey'),
+    kpiCard('% Success','10%','share with a success fee','green'),
+    kpiCard('Average Duration','100 days','from mandate opening to close','amber'),
+  ].join('');
+  document.getElementById('bzKpisCerrados2').innerHTML = [
+    kpiCard('Avg. Fixed Fees (Closed)','$100mm','average fixed fee per mandate','green'),
+    kpiCard('Avg. Success Fee (Closed)','$10mm','average success fee','amber'),
+  ].join('');
+  document.getElementById('bzKpisCerrados3').innerHTML = [
+    kpiCard('Closed Project Revenue','$1,000mm','total revenue generated','green'),
+    kpiCard('Closed Fixed Fees','$1,000mm','% of revenue: 100%','green'),
+    kpiCard('Closed Success Fees','$100mm','% of revenue: 10%','amber'),
+  ].join('');
+
+  drawDonut('bzDonutRegionCerrados',[
+    {label:'Region 1',value:1000,color:PAL.blue},{label:'Region 2',value:100,color:PAL.green},{label:'Region 3',value:10,color:PAL.amber},
+  ],'Revenue x Region','total');
+  drawDonut('bzDonutProdMandatosCerrados',[
+    {label:'Product A',value:100,color:PAL.purple},{label:'Product B',value:10,color:PAL.cyan},{label:'Product C',value:1,color:PAL.orange},
+  ],'Mandates x Product','#');
+  drawDonut('bzDonutProdIngCerrados',[
+    {label:'Product A',value:1000,color:PAL.purple},{label:'Product B',value:100,color:PAL.cyan},{label:'Product C',value:10,color:PAL.orange},
+  ],'Revenue x Product','total');
+
+  // --- Active ---
+  document.getElementById('bzKpisActivos1').innerHTML = [
+    kpiCard('Mandate Count','100','mandates currently active','blue'),
+    kpiCard('% Transactional Mandates','10%','of transactional type','green'),
+    kpiCard('Average Age (Active)','100 days','average time in pipeline','amber'),
+    kpiCard('Potential Success Fee','$1,000mm','potential fee if closed','blue'),
+  ].join('');
+  document.getElementById('bzKpisActivos2').innerHTML = [
+    kpiCard('Avg. Success Fee (Active)','$10mm','expected average success fee','amber'),
+    kpiCard('Avg. Fixed Fees (Active)','$100mm','expected average fixed fee','green'),
+    kpiCard('Probability-Adjusted','$100mm','probability-weighted pipeline','blue'),
+    kpiCard('Probability &gt; 50%','10','mandates with high probability','green'),
+  ].join('');
+  document.getElementById('bzPillsActivos').innerHTML = [
+    pill('% Target Fixed Fees (Active)','100%','green'),
+    pill('% Target Success Fee (Active)','10%','amber'),
+  ].join('');
+  drawDonut('bzDonutProdActivos',[
+    {label:'Product A',value:100,color:PAL.purple},{label:'Product B',value:10,color:PAL.cyan},{label:'Product C',value:1,color:PAL.orange},
+  ],'Mandates x Product (Active)','#');
+  drawDonut('bzDonutRegionActivos',[
+    {label:'Region 1',value:1000,color:PAL.blue},{label:'Region 2',value:100,color:PAL.green},{label:'Region 3',value:10,color:PAL.amber},
+  ],'Revenue x Region (Active)','total');
+  document.getElementById('bzPotencialCard').innerHTML = bigStat('Probability-Adjusted Potential','$100mm','probability-weighted active pipeline');
+
+  // --- Pipeline Mix ---
+  drawDonut('bzDonutStatus',[
+    {label:'Active',value:100,color:PAL.green},{label:'Closed',value:10,color:PAL.grey},{label:'Lost',value:1,color:PAL.red},
+  ],'By Status','#');
+  drawGroupedHBar('bzBarTipo',BIZ_TIPOS,[{name:'# Mandates',color:PAL.blue,data:[100,10,1]}],'By Mandate Type');
+  drawDonut('bzDonutRegionMix',[
+    {label:'Region 1',value:100,color:PAL.blue},{label:'Region 2',value:10,color:PAL.green},{label:'Region 3',value:1,color:PAL.amber},
+  ],'By Region','#');
+  drawDonut('bzDonutSector',BIZ_SECTORS.map((s,i)=>({label:s,value:[100,10,10,1][i],color:[PAL.blue,PAL.green,PAL.amber,PAL.purple][i]})),'By Sector','#');
+  drawDonut('bzDonutSize',BIZ_SIZES.map((s,i)=>({label:s,value:[100,10,1][i],color:[PAL.blue,PAL.cyan,PAL.orange][i]})),'By Client Size','#');
+  drawDonut('bzDonutCateg',[
+    {label:'Category 1',value:100,color:PAL.blue},{label:'Category 2',value:10,color:PAL.pink},{label:'Category 3',value:1,color:PAL.cyan},
+  ],'By Category','#');
+
+  // --- By Banker (slicers) ---
+  drawDonut('bzDonutBanquero1',BIZ_BANKERS.map((b,i)=>({label:b,value:[100,10,10,1][i],color:[PAL.blue,PAL.green,PAL.amber,PAL.purple][i]})),'Mandates by Banker (Origination)','#');
+  drawDonut('bzDonutBanquero2',BIZ_BANKERS.map((b,i)=>({label:b,value:[100,100,10,1][i],color:[PAL.cyan,PAL.orange,PAL.pink,PAL.grey][i]})),'Mandates by Banker (Execution)','#');
+
+  // --- Tables ---
+  document.getElementById('bzTableSector').innerHTML = BIZ_SECTORS.map((s,i)=>
+    `<tr><td>${s}</td><td>${[100,10,10,1][i]}</td><td>${[100,10,10,1][i]}%</td><td>$${[1000,100,100,10][i].toLocaleString('en-US')}mm</td><td>${[100,10,10,1][i]}%</td><td>${[100,10,1,1][i]}%</td></tr>`
+  ).join('');
+  document.getElementById('bzTableCliente').innerHTML = filteredClients.map(c=>
+    `<tr><td>${c.client}</td><td>${c.sector}</td><td>${c.type}</td><td>${statusBadge(c.prob>=100?'green':c.prob>=10?'amber':'red', c.prob+'%')}</td></tr>`
+  ).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--t3);padding:16px 0">No client matches the selected bankers</td></tr>';
+
+  // --- Marketing ---
+  document.getElementById('bzKpisMercadeo').innerHTML = [
+    kpiCard('Deals Closed (Last Mo.)','10','proposals converted into a mandate','green'),
+    kpiCard('Pitches (Last Mo.)','100','commercial presentations delivered','blue'),
+  ].join('');
+  const merc = [
+    ['Sales Meetings', 1000, 100],
+    ['Proposals Sent', 100, 10],
+    ['Deals Closed', 100, 10],
+    ['Marketing Events', 10, 1],
+  ];
+  document.getElementById('bzTableMercadeo').innerHTML = merc.map(r=>`<tr><td>${r[0]}</td><td>${r[1].toLocaleString('en-US')}</td><td>${r[2].toLocaleString('en-US')}</td></tr>`).join('');
+}
+// ================================================================
+// PRODUCTIVITY (HR)
+// ================================================================
+function renderHR(){
+  document.getElementById('hrTotalCard').innerHTML = bigStat('Total Headcount','100','active employees at the firm');
+
+  drawRingPercent('hrRingClima', 100, PAL.green);
+  drawRingPercent('hrRingRotacion', 1, PAL.green);
+  drawRingPercent('hrRingSat', 100, PAL.blue);
+  drawRingPercent('hrRingVac', 10, PAL.amber);
+  document.getElementById('hrClimaVal').innerHTML = 'Employee Engagement: <b>100%</b>';
+  document.getElementById('hrRotacionVal').innerHTML = 'Turnover: <b>1%</b>';
+  document.getElementById('hrSatVal').innerHTML = 'Satisfaction/Wellbeing: <b>100%</b>';
+  document.getElementById('hrVacVal').innerHTML = 'Vacation Compliance: <b>10%</b>';
+
+  const roles = ['Senior Bankers Exec.','Senior Bankers Orig.','Analysts','Associates','VPs','Admin Staff'];
+  const roleHC = [10,10,100,10,1,100];
+  drawDonut('hrDonutRol', roles.map((r,i)=>({label:r,value:roleHC[i],color:[PAL.blue,PAL.cyan,PAL.green,PAL.amber,PAL.purple,PAL.grey][i]})), 'Headcount by Role','#');
+
+  const tenureRoles = ['Admin Staff','Analysts','Associates','Senior Bankers','Total'];
+  const tenureVals = [10,10,10,100,10];
+  drawBarChart('hrColAntiguedad', tenureRoles, tenureVals, PAL.cyan, 'Average Tenure (months)','Illustrative demo data');
+
+  document.getElementById('hrKpisEquipo').innerHTML = [
+    kpiCard('Analysts/Associates per Banker','1','junior support ratio per banker','blue'),
+    kpiCard('Bankers per Admin Staff','1','banker ratio per admin role','blue'),
+    kpiCard('Weighted Bankers','10','count weighted by tenure/role','green'),
+    kpiCard('Senior Banker Tenure','100 months','average senior tenure','green'),
+    kpiCard('Total Tenure','10 months','average tenure at the firm','blue'),
+  ].join('');
+
+  document.getElementById('hrKpisIngreso').innerHTML = [
+    kpiCard('Senior Banker Revenue YTD','$100mm','revenue generated by senior bankers','green'),
+    kpiCard('Banker Revenue, Min. Target','$10mm','expected minimum threshold','blue'),
+    kpiCard('Banker Revenue, Target Goal','$100mm',"the year's target goal",'blue'),
+    kpiCard('Weighted Banker Revenue','$100mm','weighted by tenure/role','green'),
+    kpiCard('Weighted Employee Revenue','$10mm','weighted across the whole firm','green'),
+  ].join('');
+
+  drawGroupedHBar('hrHBarRotacion', ['Admin Staff','Analysts','Associates','Total'],
+    [{name:'% Turnover',color:PAL.red,data:[10,1,1,10]}], 'Turnover by Role');
+  drawGroupedHBar('hrHBarDesempeno', ['Admin Staff','Analysts/Associates','Bankers'],
+    [{name:'Performance Score',color:PAL.green,data:[10,100,100]}], 'Performance by Role');
+
+  document.getElementById('hrKpisBienestar1').innerHTML = [
+    kpiCard('Days Worked (Total)','1,000','person-days worked in the period','blue'),
+    kpiCard('Workplace Wellbeing Activities (WB)','10','activities held','green'),
+    kpiCard('Wellness Activities','10','wellness activities held','green'),
+    kpiCard('Weekend Days (Month)','10','weekend days in the month','grey'),
+    kpiCard('Days Not Worked (Total)','100','person-days not worked','grey'),
+  ].join('');
+  document.getElementById('hrKpisBienestar2').innerHTML = [
+    kpiCard('% Vacation Compliance','10%','of total vacation days taken','amber'),
+    kpiCard('Employees on Vacation','10','employees on vacation as of cutoff','blue'),
+    kpiCard('Employees Who Worked Weekends','10','employees with weekend activity','amber'),
+    kpiCard('Weekend Sessions','10','sessions logged on weekends','grey'),
+    kpiCard('% Sessions Reported','100%','sessions with hours reported','green'),
+  ].join('');
+
+  document.getElementById('hrKpisRedesAnual').innerHTML = [
+    kpiCard('Followers (Annual)','1,000','cumulative follower growth','green'),
+    kpiCard('Impressions (Annual)','100,000','cumulative social impressions','blue'),
+    kpiCard('Reactions (Annual)','1,000','cumulative reactions','green'),
+    kpiCard('Visits (Annual)','10,000','cumulative profile visits','blue'),
+    kpiCard('Posts (Annual)','100','posts published during the year','grey'),
+    kpiCard('New Followers (Annual)','100','new followers gained during the year','green'),
+  ].join('');
+  document.getElementById('hrPillsRedesMensual').innerHTML = [
+    pill('Impressions (Month)','10,000','blue'),
+    pill('Followers (Month)','100','blue'),
+    pill('Visits (Month)','1,000','blue'),
+    pill('New Followers (Month)','10','green'),
+    pill('Reactions (Month)','100','blue'),
+    pill('Posts (Month)','10','grey'),
+  ].join('');
+
+  drawDonut('hrDonutAlcance',[
+    {label:'Domestic',value:100,color:PAL.blue},{label:'Regional',value:10,color:PAL.green},{label:'Global',value:1,color:PAL.purple},
+  ],'Reach by Coverage (Annual)','%');
+  drawDonut('hrDonutWeb',[
+    {label:'Colombia',value:100,color:PAL.blue},{label:'U.S.',value:10,color:PAL.cyan},{label:'Other',value:10,color:PAL.orange},{label:'Regional',value:1,color:PAL.grey},
+  ],'Web Traffic by Origin','%');
+
+  document.getElementById('hrKpisWeb').innerHTML = [
+    kpiCard('Mentions (Annual)','100','brand mentions across media/social','blue'),
+    kpiCard('Active Users (Web)','1,000','unique website users','green'),
+    kpiCard('Engagement Time (Web)','10 min','average time per session','blue'),
+  ].join('');
+
+  document.getElementById('hrKpisEventos').innerHTML = [
+    kpiCard('Event Attendees (Annual)','1,000','cumulative event attendees','green'),
+    kpiCard('Number of Events (Annual)','10','events held during the year','blue'),
+    kpiCard('Event Attendees (Month)','100','attendees for the month','green'),
+    kpiCard('Number of Events (Month)','1','events held during the month','blue'),
+  ].join('');
+}
+// ================================================================
+// BOOTSTRAP
+// ================================================================
+function renderAllCharts(){
+  renderFin1();
+  renderFin2();
+  renderHist();
+  renderCF();
+  renderBiz();
+  renderHR();
+  onCutoffChange('f1');
+  onCutoffChange('f2');
+}
+populateBizFilters();
+setTimeout(renderAllCharts, 50);
+window.addEventListener('resize', ()=>{});
+</script>
+</body>
+</html>
